@@ -5,7 +5,7 @@ export const db = createPool({
   database: config.DB_NAME,
   host: config.DB_HOST,
   password: config.DB_PASSWORD,
-  port: parseInt(config.PORT!),
+  port: parseInt(config.DB_PORT!),
   user: config.DB_USER,
   timezone: "-03:00",
 }).promise();
