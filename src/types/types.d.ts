@@ -15,3 +15,14 @@ export type Trip = {
   costo: number;
   servicios: { id: number; valor: number; nombre: string }[];
 };
+
+export type UserPayload = {
+  email: string;
+  nombre: string;
+};
+
+export type User = {
+  id: number;
+  email: string;
+  nombre: string;
+};

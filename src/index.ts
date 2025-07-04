@@ -1,8 +1,10 @@
 import express, { Request, Response } from "express";
 import config from "./config/config";
 import cors from "cors";
-import { db } from "./db/db";
 import tripsRoutes from "./routes/trips.routes";
+import authRoutes from "./routes/auth.routes";
+import passport from "passport";
+import { configurePassport } from "./config/passport";
 
 const app = express();
 
@@ -14,11 +16,15 @@ app.use(
     credentials: true,
   })
 );
+app.use(passport.initialize());
+configurePassport();
+
 app.listen(config.PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${config.PORT}`);
 });
 
 app.use("/api/trips", tripsRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send({ message: "Hola" });
