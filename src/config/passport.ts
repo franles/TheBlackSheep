@@ -2,11 +2,16 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import UserService from "../services/users.service";
 import { generateAccessToken, generateRefreshToken } from "../utils/utils";
+import config from "./config";
 
 export function configurePassport() {
   passport.use(
     new GoogleStrategy(
-      { clientID: "", clientSecret: "", callbackURL: "" }, //configurar en API console de google
+      {
+        clientID: config.GOOGLE_CLIENT_ID!,
+        clientSecret: config.GOOGLE_CLIENT_SECRET!,
+        callbackURL: config.GOOGLE_CALLBACK,
+      },
       async (_accessToken, _refreshToken, profile, done) => {
         const authenticateEmail = profile.emails?.[0].value;
         if (!authenticateEmail) return done(null, false);

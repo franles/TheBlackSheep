@@ -13,7 +13,7 @@ class UserService {
     } finally {
       conn.release;
     }
-    return { id: 0, nombre: "", email: "" };
+    return { nombre: "", email: "" };
   }
 }
 
