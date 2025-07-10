@@ -1,5 +1,5 @@
 import { db } from "../db/db";
-import { GetTripsResponse } from "../types/types";
+import { GetTripsResponse, Trip } from "../types/types";
 
 class TripService {
   static async getTrips(
@@ -37,6 +37,79 @@ class TripService {
     } finally {
       conn.release();
     }
+  }
+
+  static async createTrip(
+    surname: string,
+    amount: number,
+    destiny: Pick<Trip, "destino">
+  ): Promise<Pick<Trip, "id">> {
+    const conn = await db.getConnection();
+
+    try {
+      await conn.beginTransaction();
+      const [res]: any = await conn.query("CALL insertar_viaje (?, ?, ?)", [
+        surname,
+        amount,
+        destiny,
+      ]);
+      await conn.commit();
+
+      const id = res[0]?.[0]?.id;
+      return id;
+    } catch (error) {
+      await conn.rollback();
+      console.error(error);
+    } finally {
+      conn.release();
+    }
+    return { id: "" };
+  }
+
+  static async updateTrip(
+    tripId: string,
+    surname: string,
+    amount: number,
+    destiny: Pick<Trip, "destino">
+  ): Promise<Pick<Trip, "id">> {
+    const conn = await db.getConnection();
+    try {
+      await conn.beginTransaction();
+      const [res]: any = await conn.query("CALL actualizar_viaje(?, ?, ?, ?)", [
+        tripId,
+        surname,
+        amount,
+        destiny,
+      ]);
+      await conn.commit();
+
+      const id = res[0]?.[0]?.id;
+
+      return id;
+    } catch (error) {
+      await conn.rollback();
+    } finally {
+      conn.release();
+    }
+    return { id: "" };
+  }
+
+  static async deleteTrip(tripId: string): Promise<Pick<Trip, "id">> {
+    const conn = await db.getConnection();
+    try {
+      await conn.beginTransaction();
+      const [res]: any = await conn.query("CALL eliminar_viaje(?)", [tripId]);
+      await conn.commit();
+
+      const id = res[0]?.[0]?.id;
+
+      return id;
+    } catch (error) {
+      await conn.rollback();
+    } finally {
+      conn.release();
+    }
+    return { id: "" };
   }
 }
 

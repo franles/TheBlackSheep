@@ -23,7 +23,7 @@ export async function getTrips(req: Request, res: Response) {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error });
+    res.status(500).json({ error });
   }
 }
 
@@ -33,6 +33,47 @@ export async function getTrip(req: Request, res: Response) {
     const trip = await TripService.getTrip(tid);
     res.status(200).json(trip);
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener el viaje" });
+    res.status(500).json({ error });
+  }
+}
+
+export async function createTrip(req: Request, res: Response) {
+  try {
+    const { apellido, valor_total, destino } = req.body;
+
+    const trip = await TripService.createTrip(apellido, valor_total, destino);
+
+    res.status(201).json({ message: "Viaje creado exitosamente", trip });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+}
+
+export async function updateTrip(req: Request, res: Response) {
+  try {
+    const { tid } = req.params;
+    const { apellido, valor_total, destino } = req.body;
+
+    const trip = await TripService.updateTrip(
+      tid,
+      apellido ?? null,
+      valor_total ?? null,
+      destino ?? null
+    );
+    res.status(200).json({ message: "Viaje actualizado exitosamente", trip });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+}
+
+export async function deleteTrip(req: Request, res: Response) {
+  try {
+    const { tid } = req.params;
+
+    const trip = await TripService.deleteTrip(tid);
+
+    res.status(200).json({ message: "Viaje eliminado exitosamente", trip });
+  } catch (error) {
+    res.status(500).json({ error });
   }
 }

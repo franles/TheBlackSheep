@@ -1,9 +1,18 @@
 import { Router } from "express";
-import { getTrip, getTrips } from "../controllers/trips.controller";
+import {
+  createTrip,
+  deleteTrip,
+  getTrip,
+  getTrips,
+  updateTrip,
+} from "../controllers/trips.controller";
 
 const router = Router();
 
 router.get("/", getTrips);
 router.get("/:tid", getTrip);
+router.post("/", createTrip);
+router.patch("/:tid", updateTrip);
+router.delete("/:tid", deleteTrip);
 
 export default router;
