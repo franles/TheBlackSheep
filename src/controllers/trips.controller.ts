@@ -1,7 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import TripService from "../services/trips.service";
 
-export async function getTrips(req: Request, res: Response) {
+export async function getTrips(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const filter = req.query.filter
       ? isNaN(Number(req.query.filter))
@@ -23,21 +27,25 @@ export async function getTrips(req: Request, res: Response) {
       },
     });
   } catch (error) {
-    res.status(500).json({ error });
+    next(error);
   }
 }
 
-export async function getTrip(req: Request, res: Response) {
+export async function getTrip(req: Request, res: Response, next: NextFunction) {
   try {
     const { tid } = req.params;
     const trip = await TripService.getTrip(tid);
     res.status(200).json(trip);
   } catch (error) {
-    res.status(500).json({ error });
+    next(error);
   }
 }
 
-export async function createTrip(req: Request, res: Response) {
+export async function createTrip(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { apellido, valor_total, destino } = req.body;
 
@@ -45,11 +53,15 @@ export async function createTrip(req: Request, res: Response) {
 
     res.status(201).json({ message: "Viaje creado exitosamente", trip });
   } catch (error) {
-    res.status(500).json({ error });
+    next(error);
   }
 }
 
-export async function updateTrip(req: Request, res: Response) {
+export async function updateTrip(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { tid } = req.params;
     const { apellido, valor_total, destino } = req.body;
@@ -62,11 +74,15 @@ export async function updateTrip(req: Request, res: Response) {
     );
     res.status(200).json({ message: "Viaje actualizado exitosamente", trip });
   } catch (error) {
-    res.status(500).json({ error });
+    next(error);
   }
 }
 
-export async function deleteTrip(req: Request, res: Response) {
+export async function deleteTrip(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { tid } = req.params;
 
@@ -74,6 +90,6 @@ export async function deleteTrip(req: Request, res: Response) {
 
     res.status(200).json({ message: "Viaje eliminado exitosamente", trip });
   } catch (error) {
-    res.status(500).json({ error });
+    next(error);
   }
 }

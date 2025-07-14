@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { verifyAccessToken } from "../utils/utils";
+import { ErrorFactory } from "../errors/errorFactory";
 
 export function isAuthenticate(
   req: Request,
@@ -10,8 +11,7 @@ export function isAuthenticate(
     const { authorization } = req.headers;
 
     if (!authorization) {
-      res.status(401).json({ message: "Token no encontrado" });
-      return;
+      throw ErrorFactory.unauthorized("Token invalido");
     }
 
     const token = authorization.split(" ")[1];
@@ -19,6 +19,6 @@ export function isAuthenticate(
     req.user = user;
     next();
   } catch (error) {
-    res.status(403).json({ error });
+    throw ErrorFactory.unauthorized("No autorizado, token inválido o expirado");
   }
 }

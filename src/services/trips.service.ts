@@ -1,4 +1,6 @@
 import { db } from "../db/db";
+import { AppError } from "../errors/customErrors";
+import { ErrorFactory } from "../errors/errorFactory";
 import { GetTripsResponse, Trip } from "../types/types";
 
 class TripService {
@@ -14,26 +16,42 @@ class TripService {
         limit,
         offset,
       ]);
+
+      if (!res[0] || res[0].length === 0 || res[1][0])
+        throw ErrorFactory.notFound("No se encontraron resultados");
+
       const data = res[0];
       const total = res[1]?.[0].total || 0;
 
       return { data, total };
     } catch (error) {
       await conn.rollback();
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      throw ErrorFactory.internal("Error inesperado del sistema");
     } finally {
       conn.release();
     }
-    return { data: [], total: 0 };
   }
 
   static async getTrip(id: string) {
     const conn = await db.getConnection();
     try {
       const [res]: any = await conn.query("CALL obtener_viaje(?)", [id]);
+
+      if (res[0][0] || res.length === 0)
+        throw ErrorFactory.notFound("No se encontraron resultados");
+
       return res[0][0];
     } catch (error) {
       await conn.rollback();
-      console.log(error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      throw ErrorFactory.internal("Error inesperado del sistema");
     } finally {
       conn.release();
     }
@@ -53,17 +71,23 @@ class TripService {
         amount,
         destiny,
       ]);
-      await conn.commit();
+
+      if (res[0][0] || res.length === 0)
+        throw ErrorFactory.notFound("No se encontraron resultados");
 
       const id = res[0]?.[0]?.id;
+      await conn.commit();
       return id;
     } catch (error) {
       await conn.rollback();
-      console.error(error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      throw ErrorFactory.internal("Error inesperado del sistema");
     } finally {
       conn.release();
     }
-    return { id: "" };
   }
 
   static async updateTrip(
@@ -81,17 +105,23 @@ class TripService {
         amount,
         destiny,
       ]);
-      await conn.commit();
+
+      if (res[0][0] || res.length === 0)
+        throw ErrorFactory.notFound("No se encontraron resultados");
 
       const id = res[0]?.[0]?.id;
-
+      await conn.commit();
       return id;
     } catch (error) {
       await conn.rollback();
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      throw ErrorFactory.internal("Error inesperado del sistema");
     } finally {
       conn.release();
     }
-    return { id: "" };
   }
 
   static async deleteTrip(tripId: string): Promise<Pick<Trip, "id">> {
@@ -99,17 +129,25 @@ class TripService {
     try {
       await conn.beginTransaction();
       const [res]: any = await conn.query("CALL eliminar_viaje(?)", [tripId]);
-      await conn.commit();
+
+      if (res[0][0] || res.length === 0)
+        throw ErrorFactory.notFound("No se encontraron resultados");
 
       const id = res[0]?.[0]?.id;
+      await conn.commit();
 
       return id;
     } catch (error) {
       await conn.rollback();
+
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      throw ErrorFactory.internal("Error inesperado del sistema");
     } finally {
       conn.release();
     }
-    return { id: "" };
   }
 }
 
