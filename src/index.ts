@@ -3,6 +3,7 @@ import config from "./config/config";
 import cors from "cors";
 import tripsRoutes from "./routes/trips.routes";
 import financeRoutes from "./routes/finance.routes";
+import servicesRoutes from "./routes/services.routes";
 import authRoutes from "./routes/auth.routes";
 import passport from "passport";
 import { configurePassport } from "./config/passport";
@@ -31,7 +32,7 @@ app.listen(config.PORT, () => {
 app.use("/api/auth", authRoutes);
 app.use("/api/trips", isAuthenticate, tripsRoutes);
 app.use("/api/finance", isAuthenticate, financeRoutes);
-
+app.use("/api/services", isAuthenticate, servicesRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send({ message: "Hola" });
 });

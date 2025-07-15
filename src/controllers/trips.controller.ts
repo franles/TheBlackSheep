@@ -17,9 +17,8 @@ export async function getTrips(
     const offset = (page - 1) * limit;
 
     const { data, total } = await TripService.getTrips(filter, limit, offset);
-    console.log(data);
     res.status(200).json({
-      data,
+      viajes: data,
       pagination: {
         currentPage: page,
         totalItems: total,
@@ -35,7 +34,7 @@ export async function getTrip(req: Request, res: Response, next: NextFunction) {
   try {
     const { tid } = req.params;
     const trip = await TripService.getTrip(tid);
-    res.status(200).json(trip);
+    res.status(200).json({ viaje: trip });
   } catch (error) {
     next(error);
   }

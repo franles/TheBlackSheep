@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { User } from "../types/types";
 import { generateAccessToken, verifyRefreshToken } from "../utils/utils";
 import config from "../config/config";
+import { ErrorFactory } from "../errors/errorFactory";
 
 export async function login(req: Request, res: Response, next: NextFunction) {
   const { user, refreshToken, accessToken } = req.user as {
@@ -34,8 +35,7 @@ export async function refreshToken(
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {
-    res.status(401).json({ message: "No existe dicho token" });
-    return;
+    throw ErrorFactory.unauthorized("Refresh token no proporcionado");
   }
 
   try {

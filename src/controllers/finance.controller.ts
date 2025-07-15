@@ -22,7 +22,7 @@ export async function getFinanceSummary(
     );
 
     const resSummary = summaryResponse(summary);
-    res.status(200).json(resSummary);
+    res.status(200).json({ resumen_financiero: resSummary });
   } catch (error) {
     next(error);
   }

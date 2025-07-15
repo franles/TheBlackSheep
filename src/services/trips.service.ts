@@ -17,7 +17,7 @@ class TripService {
         offset,
       ]);
 
-      if (!res[0] || res[0].length === 0 || res[1][0])
+      if (!res[0] || res[0].length === 0 || !res[1][0])
         throw ErrorFactory.notFound("No se encontraron resultados");
 
       const data = res[0];
@@ -41,7 +41,7 @@ class TripService {
     try {
       const [res]: any = await conn.query("CALL obtener_viaje(?)", [id]);
 
-      if (res[0][0] || res.length === 0)
+      if (!res[0][0] || res.length === 0)
         throw ErrorFactory.notFound("No se encontraron resultados");
 
       return res[0][0];
@@ -72,7 +72,7 @@ class TripService {
         destiny,
       ]);
 
-      if (res[0][0] || res.length === 0)
+      if (!res[0][0] || res.length === 0)
         throw ErrorFactory.notFound("No se encontraron resultados");
 
       const id = res[0]?.[0]?.id;
@@ -106,7 +106,7 @@ class TripService {
         destiny,
       ]);
 
-      if (res[0][0] || res.length === 0)
+      if (!res[0][0] || res.length === 0)
         throw ErrorFactory.notFound("No se encontraron resultados");
 
       const id = res[0]?.[0]?.id;
@@ -130,7 +130,7 @@ class TripService {
       await conn.beginTransaction();
       const [res]: any = await conn.query("CALL eliminar_viaje(?)", [tripId]);
 
-      if (res[0][0] || res.length === 0)
+      if (!res[0][0] || res.length === 0)
         throw ErrorFactory.notFound("No se encontraron resultados");
 
       const id = res[0]?.[0]?.id;

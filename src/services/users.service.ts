@@ -9,7 +9,7 @@ class UserService {
     try {
       const [res]: any = await conn.query("CALL obtener_usuario(?)", [email]);
 
-      if (res[0][0] || res.length === 0)
+      if (!res[0][0] || res.length === 0)
         throw ErrorFactory.notFound("No se encontraron resultados");
 
       return res[0][0];
