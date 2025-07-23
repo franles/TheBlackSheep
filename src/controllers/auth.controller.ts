@@ -43,6 +43,7 @@ export async function refreshToken(
       auth: true,
       nombre: user.nombre,
       email: user.email,
+      avatar: user.avatar,
     });
     res.json({ accessToken: newAccessToken });
   } catch (error) {

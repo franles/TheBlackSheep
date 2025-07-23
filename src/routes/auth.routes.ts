@@ -14,7 +14,8 @@ router.get(
   "/callback",
   passport.authenticate("google", {
     scope: ["profile", "email"],
-    failureRedirect: "/api/auth/failure",
+    failureRedirect: `/api/auth/failure`,
+    failureMessage: true,
     session: false,
   }),
   login
