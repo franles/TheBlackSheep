@@ -6,7 +6,7 @@ export function generateAccessToken(user: User) {
   return jwt.sign(user, config.JWT_ACCESS_SECRET!, { expiresIn: "15m" });
 }
 
-export function generateRefreshToken(user: User) {
+export function generateRefreshToken(user: Pick<User, "email" | "nombre">) {
   return jwt.sign(user, config.JWT_REFRESH_SECRET!, { expiresIn: "7d" });
 }
 

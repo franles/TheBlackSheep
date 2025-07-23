@@ -20,8 +20,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-
-    res.json({ accessToken, user });
+    res.redirect(`${config.CLIENT_URL}/auth-success?token=${accessToken}`);
   } catch (error) {
     next(error);
   }
@@ -41,6 +40,7 @@ export async function refreshToken(
   try {
     const user = verifyRefreshToken(refreshToken) as User;
     const newAccessToken = generateAccessToken({
+      auth: true,
       nombre: user.nombre,
       email: user.email,
     });
@@ -50,24 +50,13 @@ export async function refreshToken(
   }
 }
 
-export async function status(req: Request, res: Response, next: NextFunction) {
-  try {
-    if (!req.user) {
-      res.status(200).json({ auth: false, message: "Usuario no logueado" });
-      return;
-    }
-
-    const { email, nombre } = req.user as User;
-
-    res.status(200).json({ auth: true, email, nombre });
-  } catch (error) {
-    next(error);
-  }
-}
-
 export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
-    res.clearCookie("refreshToken");
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, // ponelo en true si estás en producción con HTTPS
+    });
     // res.redirect(config.CLIENT_URL!);
     res.status(200).json({ message: "Sesion cerrada exitosamente" });
   } catch (error) {

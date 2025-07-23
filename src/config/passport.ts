@@ -20,7 +20,7 @@ export function configurePassport() {
           return done(null, false);
         }
         const { nombre, email } = user;
-        const accessToken = generateAccessToken({ email, nombre });
+        const accessToken = generateAccessToken({ auth: true, email, nombre });
         const refreshToken = generateRefreshToken({ email, nombre });
 
         return done(null, { user, accessToken, refreshToken });

@@ -17,6 +17,7 @@ export type Trip = {
 };
 
 export type User = {
+  auth: boolean;
   email: string;
   nombre: string;
 };

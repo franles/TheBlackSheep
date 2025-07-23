@@ -5,7 +5,6 @@ import {
   login,
   logout,
   refreshToken,
-  status,
 } from "../controllers/auth.controller";
 import { isAuthenticate } from "../middlewares/isAuthtenticate";
 
@@ -23,6 +22,5 @@ router.get(
 router.post("/refresh", refreshToken);
 router.post("/logout", isAuthenticate, logout);
 router.get("/failure", failure);
-router.get("/status", isAuthenticate, status);
 
 export default router;
