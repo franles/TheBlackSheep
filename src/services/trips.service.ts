@@ -17,9 +17,6 @@ class TripService {
         offset,
       ]);
 
-      if (!res[0] || res[0].length === 0 || !res[1][0])
-        throw ErrorFactory.notFound("No se encontraron resultados");
-
       const data = res[0];
       const total = res[1]?.[0].total || 0;
 
