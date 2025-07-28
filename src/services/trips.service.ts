@@ -7,15 +7,16 @@ class TripService {
   static async getTrips(
     filter: string | number | null,
     limit: number,
-    offset: number
+    offset: number,
+    month: number | null,
+    year: number | null
   ): Promise<GetTripsResponse> {
     const conn = await db.getConnection();
     try {
-      const [res]: any = await conn.query("CALL obtener_viajes(?, ?, ?)", [
-        filter,
-        limit,
-        offset,
-      ]);
+      const [res]: any = await conn.query(
+        "CALL obtener_viajes(?, ?, ?, ?, ?)",
+        [filter, limit, offset, month, year]
+      );
 
       const data = res[0];
       const total = res[1]?.[0].total || 0;

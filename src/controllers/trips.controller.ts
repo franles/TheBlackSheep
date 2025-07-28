@@ -15,8 +15,19 @@ export async function getTrips(
     const limit = parseInt(req.query.limit as string) || 10;
     const page = parseInt(req.query.page as string) || 1;
     const offset = (page - 1) * limit;
-
-    const { data, total } = await TripService.getTrips(filter, limit, offset);
+    const year = req.query.year;
+    const month = req.query.month;
+    const monthNum = Number(month);
+    const yearNum = Number(year);
+    const monthParam = monthNum > 0 ? monthNum : null;
+    const yearParam = yearNum > 0 ? yearNum : null;
+    const { data, total } = await TripService.getTrips(
+      filter,
+      limit,
+      offset,
+      monthParam,
+      yearParam
+    );
     res.status(200).json({
       viajes: data,
       pagination: {
