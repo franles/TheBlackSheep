@@ -10,6 +10,7 @@ import { configurePassport } from "./config/passport";
 import { isAuthenticate } from "./middlewares/isAuthtenticate";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/errorHandler";
+import compression from "compression";
 
 export const app = express();
 
@@ -25,6 +26,7 @@ app.use(cookieParser());
 app.use(passport.initialize());
 configurePassport();
 
+app.use(compression());
 app.use("/api/auth", authRoutes);
 app.use("/api/trips", isAuthenticate, tripsRoutes);
 app.use("/api/finance", isAuthenticate, financeRoutes);
