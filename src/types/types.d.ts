@@ -13,7 +13,12 @@ export type Trip = {
   valor_total: number;
   ganancia: number;
   costo: number;
-  servicios: { id: number; valor: number; nombre: string }[];
+  servicios: {
+    id: number;
+    valor: number;
+    nombre: string;
+    pagado_por: "pendiente" | "pablo" | "soledad" | "mariana";
+  }[];
 };
 
 export type User = {
