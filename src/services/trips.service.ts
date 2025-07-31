@@ -13,10 +13,11 @@ class TripService {
   ): Promise<GetTripsResponse> {
     const conn = await db.getConnection();
     try {
-      const [res]: any = await conn.query(
-        "CALL obtener_viajes(?, ?, ?, ?, ?)",
-        [filter, limit, offset, month, year]
-      );
+      const [res]: any = await conn.query("CALL obtener_viajes(?, ?, ?)", [
+        filter,
+        limit,
+        offset,
+      ]);
 
       const data = res[0];
       const total = res[1]?.[0].total || 0;
