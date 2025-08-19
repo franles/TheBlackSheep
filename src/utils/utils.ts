@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import config from "../config/config";
 
 export function generateAccessToken(user: User) {
-  return jwt.sign(user, config.JWT_ACCESS_SECRET!, { expiresIn: "15m" });
+  return jwt.sign(user, config.JWT_ACCESS_SECRET!, { expiresIn: "2m" });
 }
 
 export function generateRefreshToken(user: Pick<User, "email" | "nombre">) {

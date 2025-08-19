@@ -58,7 +58,9 @@ const servicesPatchSchemaValidator: Schema = {
   },
   valor: {
     in: ["body"],
-    optional: true,
+    optional: {
+      options: { nullable: true, checkFalsy: true },
+    },
     isInt: {
       options: { min: 0 },
       errorMessage: "El valor debe ser un número entero mayor a 0",
@@ -69,9 +71,11 @@ const servicesPatchSchemaValidator: Schema = {
   },
   pagado_por: {
     in: ["body"],
-    optional: true,
+    optional: {
+      options: { nullable: true, checkFalsy: true },
+    },
     isIn: {
-      options: [["mariana", "pablo", "soledad"]],
+      options: [["mariana", "pablo", "soledad", "pendiente"]],
       errorMessage: "El pagado por debe ser 'mariana', 'pablo' o 'soledad'",
       bail: true,
     },

@@ -16,8 +16,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     console.log(accessToken);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false, //cambiar a true cuando este en produccion
-      sameSite: "lax",
+      secure: true, //cambiar a true cuando este en produccion
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.redirect(`${config.CLIENT_URL}/auth-success?token=${accessToken}`);
@@ -55,10 +55,9 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false, // ponelo en true si estás en producción con HTTPS
+      sameSite: "none",
+      secure: true, // ponelo en true si estás en producción con HTTPS
     });
-    // res.redirect(config.CLIENT_URL!);
     res.status(200).json({ message: "Sesion cerrada exitosamente" });
   } catch (error) {
     next(error);

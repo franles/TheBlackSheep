@@ -1,4 +1,6 @@
 import { Command, Option } from "commander";
+import dotenv from "dotenv";
+import fs from "fs";
 
 const program = new Command();
 
@@ -13,8 +15,12 @@ program.allowExcessArguments();
 program.parse();
 const { mode } = program.opts();
 
-process.loadEnvFile(mode === "prod" ? ".env.prod" : ".env.dev");
-
+const envFile = mode === "prod" ? ".env" : ".env.dev";
+if (fs.existsSync(envFile)) {
+  dotenv.config({ path: envFile });
+} else {
+  dotenv.config();
+}
 const config = {
   PORT: process.env.PORT,
   DB_NAME: process.env.DB_NAME,
