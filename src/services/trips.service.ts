@@ -2,6 +2,7 @@ import { db } from "../db/db";
 import { AppError } from "../errors/customErrors";
 import { ErrorFactory } from "../errors/errorFactory";
 import { GetTripsResponse, Trip } from "../types/types";
+import ServicesService from "./services.service";
 
 class TripService {
   static async getTrips(
@@ -58,7 +59,13 @@ class TripService {
   static async createTrip(
     surname: string,
     amount: number,
-    destiny: Pick<Trip, "destino">
+    destiny: Pick<Trip, "destino">,
+    services: {
+      id: number;
+      valor: number;
+      nombre: string;
+      pagado_por: "pendiente" | "pablo" | "soledad" | "mariana";
+    }[]
   ): Promise<Pick<Trip, "id">> {
     const conn = await db.getConnection();
 
@@ -74,6 +81,15 @@ class TripService {
         throw ErrorFactory.notFound("No se encontraron resultados");
 
       const id = res[0]?.[0]?.id;
+
+      for (const service of services) {
+        await ServicesService.createServiceForTrip(
+          id,
+          service.id,
+          service.valor,
+          service.pagado_por
+        );
+      }
       await conn.commit();
       return id;
     } catch (error) {
