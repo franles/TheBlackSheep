@@ -24,27 +24,21 @@ class ServicesService {
   }
 
   static async createServiceForTrip(
+    conn: any,
     tripId: string,
     serviceId: number,
     amount: number,
     payFor: string
   ) {
-    const conn = await db.getConnection();
     try {
-      await conn.beginTransaction();
-
-      const [res]: any = await conn.query(
-        "CALL insertar_servicio_viaje(?, ?, ?, ?)",
-        [tripId, serviceId, amount, payFor]
-      );
-
-      await conn.commit();
-
-      if (!res[0] || res.length === 0)
-        throw ErrorFactory.badRequest("No se pudo crear el servicio");
+      await conn.query("CALL insertar_servicio_viaje(?, ?, ?, ?)", [
+        tripId,
+        serviceId,
+        amount,
+        payFor,
+      ]);
     } catch (error) {
       await conn.rollback();
-
       if (error instanceof AppError) {
         throw error;
       }

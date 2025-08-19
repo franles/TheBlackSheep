@@ -63,7 +63,6 @@ class TripService {
     services: {
       id: number;
       valor: number;
-      nombre: string;
       pagado_por: "pendiente" | "pablo" | "soledad" | "mariana";
     }[]
   ): Promise<Pick<Trip, "id">> {
@@ -74,7 +73,7 @@ class TripService {
       const [res]: any = await conn.query("CALL insertar_viaje (?, ?, ?)", [
         surname,
         amount,
-        destiny,
+        destiny.destino,
       ]);
 
       if (!res[0][0] || res.length === 0)
@@ -84,6 +83,7 @@ class TripService {
 
       for (const service of services) {
         await ServicesService.createServiceForTrip(
+          conn,
           id,
           service.id,
           service.valor,
