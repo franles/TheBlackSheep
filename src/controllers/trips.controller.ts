@@ -57,9 +57,14 @@ export async function createTrip(
   next: NextFunction
 ) {
   try {
-    const { apellido, valor_total, destino } = req.body;
+    const { apellido, valor_total, destino, servicios } = req.body;
 
-    const trip = await TripService.createTrip(apellido, valor_total, destino);
+    const trip = await TripService.createTrip(
+      apellido,
+      valor_total,
+      destino,
+      servicios
+    );
 
     res.status(201).json({ message: "Viaje creado exitosamente", trip });
   } catch (error) {
