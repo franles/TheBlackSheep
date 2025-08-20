@@ -73,7 +73,7 @@ class TripService {
       const [res]: any = await conn.query("CALL insertar_viaje (?, ?, ?)", [
         surname,
         amount,
-        destiny.destino,
+        destiny,
       ]);
 
       if (!res[0][0] || res.length === 0)
