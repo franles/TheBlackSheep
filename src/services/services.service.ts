@@ -24,11 +24,11 @@ class ServicesService {
   }
 
   static async createServiceForTrip(
-    conn: any,
     tripId: string,
     serviceId: number,
     amount: number,
-    payFor: string
+    payFor: string,
+    conn?: any
   ) {
     try {
       await conn.query("CALL insertar_servicio_viaje(?, ?, ?, ?)", [

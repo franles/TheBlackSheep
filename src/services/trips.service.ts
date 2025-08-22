@@ -83,11 +83,11 @@ class TripService {
 
       for (const service of services) {
         await ServicesService.createServiceForTrip(
-          conn,
           id,
           service.id,
           service.valor,
-          service.pagado_por
+          service.pagado_por,
+          conn
         );
       }
       await conn.commit();
