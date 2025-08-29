@@ -108,7 +108,12 @@ class TripService {
     tripId: string,
     surname: string,
     amount: number,
-    destiny: Pick<Trip, "destino">
+    destiny: Pick<Trip, "destino">,
+    services: {
+      id: number;
+      valor: number;
+      pagado_por: "pendiente" | "pablo" | "soledad" | "mariana";
+    }[]
   ): Promise<Pick<Trip, "id">> {
     const conn = await db.getConnection();
     try {
@@ -124,6 +129,16 @@ class TripService {
         throw ErrorFactory.notFound("No se encontraron resultados");
 
       const id = res[0]?.[0]?.id;
+
+      for (const service of services) {
+        await ServicesService.updateServiceForTrip(
+          id,
+          service.id,
+          service.valor,
+          service.pagado_por,
+          conn
+        );
+      }
       await conn.commit();
       return id;
     } catch (error) {

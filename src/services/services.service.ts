@@ -53,19 +53,18 @@ class ServicesService {
     tripId: string,
     serviceId: number,
     amount: number,
-    payFor: string
+    payFor: string,
+    conn?: any
   ) {
-    const conn = await db.getConnection();
+    console.log("updateServiceForTrip", { tripId, serviceId, amount, payFor });
+
     try {
-      await conn.beginTransaction();
       const [res]: any = await conn.query(
         "CALL actualizar_servicio_viaje(?, ?, ?, ?)",
         [tripId, serviceId, amount, payFor]
       );
+      console.log("Resultado SP", res);
 
-      if (res.affectedRows === 0) {
-        throw ErrorFactory.badRequest("El servicio no pudo ser actualizado");
-      }
       await conn.commit();
     } catch (error) {
       await conn.rollback();

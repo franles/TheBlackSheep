@@ -79,14 +79,15 @@ export async function updateTrip(
 ) {
   try {
     const { tid } = req.params;
-    const { apellido, valor_total, destino } = req.body;
-    console.log("Data", { apellido, valor_total, destino, tid });
+    const { apellido, valor_total, destino, servicios } = req.body;
+    console.log("Data", { apellido, valor_total, destino, tid, servicios });
 
     const trip = await TripService.updateTrip(
       tid,
       apellido ?? null,
       valor_total ?? null,
-      destino ?? null
+      destino ?? null,
+      servicios
     );
     res.status(200).json({ message: "Viaje actualizado exitosamente", trip });
   } catch (error) {
