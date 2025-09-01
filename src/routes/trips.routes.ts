@@ -14,7 +14,7 @@ const router = Router();
 router.get("/", getTrips);
 router.get("/:tid", getTrip);
 router.post("/", tripPostSchema, validateRequest, createTrip);
-router.put("/:tid", updateTrip);
+router.patch("/:tid", updateTrip);
 router.delete("/:tid", tripDeleteSchema, validateRequest, deleteTrip);
 
 export default router;

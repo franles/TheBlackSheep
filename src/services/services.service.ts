@@ -50,31 +50,39 @@ class ServicesService {
   }
 
   static async updateServiceForTrip(
-    tripId: string,
+    tripId: string | number,
     serviceId: number,
     amount: number,
     payFor: string,
     conn?: any
   ) {
     console.log("updateServiceForTrip", { tripId, serviceId, amount, payFor });
+    const localConn = conn ?? (await db.getConnection());
 
     try {
-      const [res]: any = await conn.query(
+      if (!conn) {
+        await localConn.beginTransaction();
+      }
+      const [res]: any = await localConn.query(
         "CALL actualizar_servicio_viaje(?, ?, ?, ?)",
         [tripId, serviceId, amount, payFor]
       );
       console.log("Resultado SP", res);
-
-      await conn.commit();
+      if (!conn) {
+        await localConn.commit();
+      }
     } catch (error) {
-      await conn.rollback();
+      if (!conn) {
+        await localConn.rollback();
+      }
       if (error instanceof AppError) {
         throw error;
       }
-
-      throw ErrorFactory.internal("Error inesperado del sistema");
+      console.log(error);
     } finally {
-      conn.release();
+      if (!conn) {
+        localConn.release();
+      }
     }
   }
 

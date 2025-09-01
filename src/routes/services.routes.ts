@@ -15,7 +15,7 @@ const router = Router();
 
 router.get("/", getServices);
 router.post("/", servicesPostSchema, validateRequest, createServiceForTrip);
-router.patch("/:sid/trip/:tid", updateServiceForTrip);
+router.put("/:sid/trip/:tid", updateServiceForTrip);
 router.delete(
   "/:sid/trip/:tid",
   servicesDeleteSchema,
