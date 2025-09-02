@@ -5,16 +5,13 @@ import {
   getServices,
   updateServiceForTrip,
 } from "../controllers/services.controller";
-import {
-  servicesDeleteSchema,
-  servicesPostSchema,
-} from "../middlewares/schemas/services";
+import { servicesDeleteSchema } from "../middlewares/schemas/services";
 import { validateRequest } from "../middlewares/validateRequest";
 
 const router = Router();
 
 router.get("/", getServices);
-router.post("/", servicesPostSchema, validateRequest, createServiceForTrip);
+router.post("/", createServiceForTrip);
 router.put("/:sid/trip/:tid", updateServiceForTrip);
 router.delete(
   "/:sid/trip/:tid",

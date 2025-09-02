@@ -30,22 +30,25 @@ class ServicesService {
     payFor: string,
     conn?: any
   ) {
+    const connection = conn || (await db.getConnection());
+
     try {
-      await conn.query("CALL insertar_servicio_viaje(?, ?, ?, ?)", [
+      await connection.query("CALL insertar_servicio_viaje(?, ?, ?, ?)", [
         tripId,
         serviceId,
         amount,
         payFor,
       ]);
+      if (!conn) await connection.commit();
     } catch (error) {
-      await conn.rollback();
+      if (!conn) await connection.rollback();
       if (error instanceof AppError) {
         throw error;
       }
 
       throw ErrorFactory.internal("Error inesperado del sistema");
     } finally {
-      conn.release();
+      if (!conn) connection.release();
     }
   }
 
@@ -56,7 +59,6 @@ class ServicesService {
     payFor: string,
     conn?: any
   ) {
-    console.log("updateServiceForTrip", { tripId, serviceId, amount, payFor });
     const localConn = conn ?? (await db.getConnection());
 
     try {
@@ -67,7 +69,6 @@ class ServicesService {
         "CALL actualizar_servicio_viaje(?, ?, ?, ?)",
         [tripId, serviceId, amount, payFor]
       );
-      console.log("Resultado SP", res);
       if (!conn) {
         await localConn.commit();
       }
