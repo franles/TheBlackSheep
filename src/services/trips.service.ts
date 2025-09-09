@@ -59,7 +59,10 @@ class TripService {
   static async createTrip(
     surname: string,
     amount: number,
-    destiny: Pick<Trip, "destino">,
+    destiny: string,
+    departureDate: Date,
+    returnDate: Date,
+    currency: number,
     services: {
       id: number;
       valor: number;
@@ -70,17 +73,15 @@ class TripService {
 
     try {
       await conn.beginTransaction();
-      const [res]: any = await conn.query("CALL insertar_viaje (?, ?, ?)", [
-        surname,
-        amount,
-        destiny,
-      ]);
+      const [res]: any = await conn.query(
+        "CALL insertar_viaje (?, ?, ?, ?, ?, ?)",
+        [surname, amount, destiny, departureDate, returnDate, currency]
+      );
 
       if (!res[0][0] || res.length === 0)
         throw ErrorFactory.notFound("No se encontraron resultados");
 
       const id = res[0]?.[0]?.id;
-
       for (const service of services) {
         await ServicesService.createServiceForTrip(
           id,
@@ -91,9 +92,11 @@ class TripService {
         );
       }
       await conn.commit();
+
       return id;
     } catch (error) {
       await conn.rollback();
+      console.log(error);
       if (error instanceof AppError) {
         throw error;
       }
@@ -108,7 +111,10 @@ class TripService {
     tripId: string,
     surname: string,
     amount: number,
-    destiny: Pick<Trip, "destino">,
+    destiny: string,
+    departureDate: Date,
+    returnDate: Date,
+    currency: number,
     services: {
       id: number;
       valor: number;
@@ -118,12 +124,10 @@ class TripService {
     const conn = await db.getConnection();
     try {
       await conn.beginTransaction();
-      const [res]: any = await conn.query("CALL actualizar_viaje(?, ?, ?, ?)", [
-        tripId,
-        surname,
-        amount,
-        destiny,
-      ]);
+      const [res]: any = await conn.query(
+        "CALL actualizar_viaje(?, ?, ?, ?, ?, ?, ?)",
+        [tripId, surname, amount, destiny, departureDate, returnDate, currency]
+      );
 
       if (!res[0][0] || res.length === 0)
         throw ErrorFactory.notFound("No se encontraron resultados");
@@ -143,6 +147,8 @@ class TripService {
       return id;
     } catch (error) {
       await conn.rollback();
+      console.error("updateTrip ERROR:", error); // 👈 log original
+
       if (error instanceof AppError) {
         throw error;
       }

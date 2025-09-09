@@ -57,12 +57,23 @@ export async function createTrip(
   next: NextFunction
 ) {
   try {
-    const { apellido, valor_total, destino, servicios } = req.body;
+    const {
+      apellido,
+      valor_total,
+      destino,
+      servicios,
+      fecha_ida,
+      fecha_vuelta,
+      moneda,
+    } = req.body;
 
     const trip = await TripService.createTrip(
       apellido,
       valor_total,
       destino,
+      new Date(fecha_ida),
+      new Date(fecha_vuelta),
+      moneda,
       servicios
     );
 
@@ -79,13 +90,24 @@ export async function updateTrip(
 ) {
   try {
     const { tid } = req.params;
-    const { apellido, valor_total, destino, servicios } = req.body;
+    const {
+      apellido,
+      valor_total,
+      destino,
+      servicios,
+      moneda,
+      fecha_ida,
+      fecha_vuelta,
+    } = req.body;
 
     const trip = await TripService.updateTrip(
       tid,
       apellido ?? null,
       valor_total ?? null,
       destino ?? null,
+      new Date(fecha_ida) ?? null,
+      new Date(fecha_vuelta) ?? null,
+      moneda ?? null,
       servicios
     );
     res.status(200).json({ message: "Viaje actualizado exitosamente", trip });
