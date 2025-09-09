@@ -28,16 +28,18 @@ class ServicesService {
     serviceId: number,
     amount: number,
     payFor: string,
+    currency: number,
     conn?: any
   ) {
     const connection = conn || (await db.getConnection());
 
     try {
-      await connection.query("CALL insertar_servicio_viaje(?, ?, ?, ?)", [
+      await connection.query("CALL insertar_servicio_viaje(?, ?, ?, ?, ?)", [
         tripId,
         serviceId,
         amount,
         payFor,
+        currency,
       ]);
       if (!conn) await connection.commit();
     } catch (error) {
@@ -57,6 +59,7 @@ class ServicesService {
     serviceId: number,
     amount: number,
     payFor: string,
+    currency: number,
     conn?: any
   ) {
     const localConn = conn ?? (await db.getConnection());
@@ -66,8 +69,8 @@ class ServicesService {
         await localConn.beginTransaction();
       }
       const [res]: any = await localConn.query(
-        "CALL actualizar_servicio_viaje(?, ?, ?, ?)",
-        [tripId, serviceId, amount, payFor]
+        "CALL actualizar_servicio_viaje(?, ?, ?, ?, ?)",
+        [tripId, serviceId, amount, payFor, currency]
       );
       if (!conn) {
         await localConn.commit();

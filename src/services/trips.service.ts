@@ -67,6 +67,7 @@ class TripService {
       id: number;
       valor: number;
       pagado_por: "pendiente" | "pablo" | "soledad" | "mariana";
+      moneda: number;
     }[]
   ): Promise<Pick<Trip, "id">> {
     const conn = await db.getConnection();
@@ -88,6 +89,7 @@ class TripService {
           service.id,
           service.valor,
           service.pagado_por,
+          service.moneda,
           conn
         );
       }
@@ -119,6 +121,7 @@ class TripService {
       id: number;
       valor: number;
       pagado_por: "pendiente" | "pablo" | "soledad" | "mariana";
+      moneda: number;
     }[]
   ): Promise<Pick<Trip, "id">> {
     const conn = await db.getConnection();
@@ -140,6 +143,7 @@ class TripService {
           service.id,
           service.valor,
           service.pagado_por,
+          service.moneda,
           conn
         );
       }

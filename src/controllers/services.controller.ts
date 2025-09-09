@@ -19,12 +19,13 @@ export async function createServiceForTrip(
   next: NextFunction
 ) {
   try {
-    const { valor, pagado_por, viaje_id, servicio_id } = req.body;
+    const { valor, pagado_por, viaje_id, servicio_id, moneda } = req.body;
     await ServicesService.createServiceForTrip(
       viaje_id,
       servicio_id,
       valor,
-      pagado_por
+      pagado_por,
+      moneda
     );
 
     res.status(201).json({ message: "Servicio creado exitosamente" });
@@ -39,14 +40,15 @@ export async function updateServiceForTrip(
   next: NextFunction
 ) {
   try {
-    const { pagado_por, valor } = req.body;
+    const { pagado_por, valor, moneda } = req.body;
     const { sid, tid } = req.params;
 
     await ServicesService.updateServiceForTrip(
       tid,
       Number(sid),
       valor,
-      pagado_por
+      pagado_por,
+      moneda
     );
 
     res.status(200).json({ message: "Servicio actualizado exitosamente" });
