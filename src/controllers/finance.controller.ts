@@ -27,3 +27,47 @@ export async function getFinanceSummary(
     next(error);
   }
 }
+
+export async function createExchangeRate(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { moneda, valor_base } = req.body;
+
+    if (!moneda || !valor_base) {
+      throw ErrorFactory.badRequest("Falta la moneda o el valor de la misma");
+    }
+    await FinanceService.createExchangeRate(moneda, valor_base);
+
+    res.status(200).json({ message: "Tipo de cambio creado exitosamente" });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateExchangeRate(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { rid } = req.params;
+    const { valor } = req.body;
+
+    if (!rid || !valor) {
+      throw ErrorFactory.badRequest(
+        "Falta el id o el valor del tipo de cambio"
+      );
+    }
+
+    await FinanceService.updateExchangeRate(Number(rid), valor);
+
+    res
+      .status(200)
+      .json({ message: "Tipo de cambio actualizado correctamente" });
+  } catch (error) {
+    next(error);
+  }
+}

@@ -31,8 +31,5 @@ app.use("/api/auth", authRoutes);
 app.use("/api/trips", isAuthenticate, tripsRoutes);
 app.use("/api/finance", isAuthenticate, financeRoutes);
 app.use("/api/services", isAuthenticate, servicesRoutes);
-app.get("/", (req: Request, res: Response) => {
-  res.send({ message: "Hola" });
-});
 
 app.use(errorHandler);

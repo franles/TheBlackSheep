@@ -40,6 +40,46 @@ class FinanceService {
       conn.release();
     }
   }
+
+  static async createExchangeRate(currency: number, amount: number) {
+    const conn = await db.getConnection();
+    try {
+      await conn.query(
+        "INSERT INTO tipo_cambio(fecha, moneda_id, valor_base) VALUES(NOW(), ?, ?)",
+        [currency, amount]
+      );
+      await conn.commit();
+    } catch (error) {
+      await conn.rollback();
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      throw ErrorFactory.internal("Error inesperado del sistema");
+    } finally {
+      conn.release();
+    }
+  }
+
+  static async updateExchangeRate(id: number, amount: number) {
+    const conn = await db.getConnection();
+    try {
+      await conn.query("UPDATE tipo_cambio SET valor_base = ? WHERE id = ? ", [
+        amount,
+        id,
+      ]);
+      await conn.commit();
+    } catch (error) {
+      await conn.rollback();
+      console.log(error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw ErrorFactory.internal("Error inesperado del sistema");
+    } finally {
+      conn.release();
+    }
+  }
 }
 
 export default FinanceService;
