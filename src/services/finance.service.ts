@@ -41,14 +41,18 @@ class FinanceService {
     }
   }
 
-  static async createExchangeRate(currency: number, amount: number) {
+  static async createExchangeRate(
+    currency: number,
+    amount: number
+  ): Promise<Number> {
     const conn = await db.getConnection();
     try {
-      await conn.query(
+      const [res]: any = await conn.query(
         "INSERT INTO tipo_cambio(fecha, moneda_id, valor_base) VALUES(NOW(), ?, ?)",
         [currency, amount]
       );
       await conn.commit();
+      return res.insertId;
     } catch (error) {
       await conn.rollback();
       if (error instanceof AppError) {

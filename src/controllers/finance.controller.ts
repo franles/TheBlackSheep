@@ -39,9 +39,15 @@ export async function createExchangeRate(
     if (!moneda || !valor_base) {
       throw ErrorFactory.badRequest("Falta la moneda o el valor de la misma");
     }
-    await FinanceService.createExchangeRate(moneda, valor_base);
+    const exchange_rate = await FinanceService.createExchangeRate(
+      moneda,
+      valor_base
+    );
 
-    res.status(200).json({ message: "Tipo de cambio creado exitosamente" });
+    res.status(200).json({
+      message: "Tipo de cambio creado exitosamente",
+      tipo_cambio_id: exchange_rate,
+    });
   } catch (error) {
     next(error);
   }
