@@ -29,17 +29,19 @@ class ServicesService {
     amount: number,
     payFor: string,
     currency: number,
+    rateChange: number | null,
     conn?: any
   ) {
     const connection = conn || (await db.getConnection());
 
     try {
-      await connection.query("CALL insertar_servicio_viaje(?, ?, ?, ?, ?)", [
+      await connection.query("CALL insertar_servicio_viaje(?, ?, ?, ?, ?, ?)", [
         tripId,
         serviceId,
         amount,
         payFor,
         currency,
+        rateChange,
       ]);
       if (!conn) await connection.commit();
     } catch (error) {

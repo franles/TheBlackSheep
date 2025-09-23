@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import config from "./config/config";
 import cors from "cors";
 import tripsRoutes from "./routes/trips.routes";
@@ -6,7 +6,7 @@ import financeRoutes from "./routes/finance.routes";
 import servicesRoutes from "./routes/services.routes";
 import authRoutes from "./routes/auth.routes";
 import passport from "passport";
-import { configurePassport } from "./config/passport";
+import { configurePassport } from "./config/passport.config";
 import { isAuthenticate } from "./middlewares/isAuthtenticate";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/errorHandler";

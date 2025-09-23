@@ -90,6 +90,7 @@ class TripService {
           service.valor,
           service.pagado_por,
           service.moneda,
+          null,
           conn
         );
       }
