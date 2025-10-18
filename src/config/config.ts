@@ -19,10 +19,13 @@ const envFile = mode === "prod" ? ".env" : ".env.dev";
 if (fs.existsSync(envFile)) {
   dotenv.config({ path: envFile });
 } else {
+  console.warn(`⚠️  Archivo ${envFile} no encontrado, usando variables de entorno del sistema`);
   dotenv.config();
 }
+
 const config = {
-  PORT: process.env.PORT,
+  NODE_ENV: mode === "prod" ? "production" : "development",
+  PORT: process.env.PORT || "8080",
   DB_NAME: process.env.DB_NAME,
   DB_HOST: process.env.DB_HOST,
   DB_PASSWORD: process.env.DB_PASSWORD,
@@ -35,5 +38,21 @@ const config = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GOOGLE_CALLBACK: process.env.GOOGLE_CALLBACK,
 };
+
+// Validar variables críticas
+const requiredVars = [
+  'DB_NAME',
+  'DB_HOST',
+  'DB_USER',
+  'JWT_REFRESH_SECRET',
+  'JWT_ACCESS_SECRET',
+];
+
+const missingVars = requiredVars.filter(varName => !config[varName as keyof typeof config]);
+
+if (missingVars.length > 0) {
+  console.error('❌ Faltan variables de entorno críticas:', missingVars.join(', '));
+  process.exit(1);
+}
 
 export default config;

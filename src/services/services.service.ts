@@ -1,6 +1,7 @@
 import { db } from "../db/db";
 import { AppError } from "../errors/customErrors";
 import { ErrorFactory } from "../errors/errorFactory";
+import { PoolConnection } from "mysql2/promise";
 
 class ServicesService {
   static async getServices() {
@@ -30,9 +31,10 @@ class ServicesService {
     payFor: string,
     currency: number,
     rateChange: number | null,
-    conn?: any
-  ) {
+    conn?: PoolConnection
+  ): Promise<void> {
     const connection = conn || (await db.getConnection());
+    const shouldManageConnection = !conn;
 
     try {
       await connection.query("CALL insertar_servicio_viaje(?, ?, ?, ?, ?, ?)", [
@@ -43,16 +45,24 @@ class ServicesService {
         currency,
         rateChange,
       ]);
-      if (!conn) await connection.commit();
+      
+      if (shouldManageConnection) {
+        await connection.commit();
+      }
     } catch (error) {
-      if (!conn) await connection.rollback();
+      if (shouldManageConnection) {
+        await connection.rollback();
+      }
+      
       if (error instanceof AppError) {
         throw error;
       }
 
       throw ErrorFactory.internal("Error inesperado del sistema");
     } finally {
-      if (!conn) connection.release();
+      if (shouldManageConnection) {
+        connection.release();
+      }
     }
   }
 
@@ -62,37 +72,43 @@ class ServicesService {
     amount: number,
     payFor: string,
     currency: number,
-    conn?: any
-  ) {
+    conn?: PoolConnection
+  ): Promise<void> {
     const localConn = conn ?? (await db.getConnection());
+    const shouldManageTransaction = !conn;
 
     try {
-      if (!conn) {
+      if (shouldManageTransaction) {
         await localConn.beginTransaction();
       }
-      const [res]: any = await localConn.query(
+      
+      await localConn.query(
         "CALL actualizar_servicio_viaje(?, ?, ?, ?, ?)",
         [tripId, serviceId, amount, payFor, currency]
       );
-      if (!conn) {
+      
+      if (shouldManageTransaction) {
         await localConn.commit();
       }
     } catch (error) {
-      if (!conn) {
+      if (shouldManageTransaction) {
         await localConn.rollback();
       }
+      
       if (error instanceof AppError) {
         throw error;
       }
-      console.log(error);
+      
+      console.error('Error updating service:', error);
+      throw ErrorFactory.internal("Error al actualizar servicio"); // ✅ CORREGIDO: Re-lanzar error
     } finally {
-      if (!conn) {
+      if (shouldManageTransaction) {
         localConn.release();
       }
     }
   }
 
-  static async deleteServiceForTrip(tripId: string, serviceId: number) {
+  static async deleteServiceForTrip(tripId: string, serviceId: number): Promise<void> {
     const conn = await db.getConnection();
     try {
       await conn.beginTransaction();

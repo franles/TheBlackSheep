@@ -21,7 +21,7 @@ class UserService {
 
       throw ErrorFactory.internal("Error inesperado del sistema");
     } finally {
-      conn.release;
+      conn.release(); // ✅ CORREGIDO: Agregados los paréntesis
     }
   }
 }

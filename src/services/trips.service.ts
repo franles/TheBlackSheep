@@ -3,6 +3,8 @@ import { AppError } from "../errors/customErrors";
 import { ErrorFactory } from "../errors/errorFactory";
 import { GetTripsResponse, Trip } from "../types/types";
 import ServicesService from "./services.service";
+import { VALIDATION } from "../constants/validation";
+import { sanitizeString } from "../utils/validation";
 
 class TripService {
   static async getTrips(
@@ -12,6 +14,27 @@ class TripService {
     month: number | null,
     year: number | null
   ): Promise<GetTripsResponse> {
+    // ✅ Validación y sanitización de inputs
+    if (filter !== null && typeof filter === 'string') {
+      filter = sanitizeString(filter, VALIDATION.DB.MAX_STRING_LENGTH);
+    }
+
+    if (limit < 1 || limit > VALIDATION.DB.MAX_STRING_LENGTH) {
+      throw ErrorFactory.badRequest("Límite inválido");
+    }
+
+    if (offset < 0) {
+      throw ErrorFactory.badRequest("Offset inválido");
+    }
+
+    if (month !== null && (month < VALIDATION.FINANCE.MIN_MONTH || month > VALIDATION.FINANCE.MAX_MONTH)) {
+      throw ErrorFactory.badRequest("Mes inválido");
+    }
+
+    if (year !== null && year < 2000) {
+      throw ErrorFactory.badRequest("Año inválido");
+    }
+
     const conn = await db.getConnection();
     try {
       const [res]: any = await conn.query(
@@ -35,7 +58,7 @@ class TripService {
     }
   }
 
-  static async getTrip(id: string) {
+  static async getTrip(id: string): Promise<Trip> {
     const conn = await db.getConnection();
     try {
       const [res]: any = await conn.query("CALL obtener_viaje(?)", [id]);
@@ -70,6 +93,20 @@ class TripService {
       moneda: number;
     }[]
   ): Promise<Pick<Trip, "id">> {
+    // ✅ Validar servicios antes de comenzar
+    if (!services || services.length === 0) {
+      throw ErrorFactory.badRequest('Debe proporcionar al menos un servicio');
+    }
+
+    services.forEach((service, index) => {
+      if (!service.id || !service.valor || !service.moneda) {
+        throw ErrorFactory.badRequest(`El servicio en posición ${index + 1} está incompleto`);
+      }
+      if (service.valor <= 0) {
+        throw ErrorFactory.badRequest(`El valor del servicio debe ser mayor a 0`);
+      }
+    });
+
     const conn = await db.getConnection();
 
     try {
@@ -99,7 +136,7 @@ class TripService {
       return id;
     } catch (error) {
       await conn.rollback();
-      console.log(error);
+      console.error('Error creating trip:', error);
       if (error instanceof AppError) {
         throw error;
       }
@@ -112,12 +149,12 @@ class TripService {
 
   static async updateTrip(
     tripId: string,
-    surname: string,
-    amount: number,
-    destiny: string,
-    departureDate: Date,
-    returnDate: Date,
-    currency: number,
+    surname: string | null,
+    amount: number | null,
+    destiny: string | null,
+    departureDate: Date | null,
+    returnDate: Date | null,
+    currency: number | null,
     services: {
       id: number;
       valor: number;
@@ -138,21 +175,23 @@ class TripService {
 
       const id = res[0]?.[0]?.id;
 
-      for (const service of services) {
-        await ServicesService.updateServiceForTrip(
-          id,
-          service.id,
-          service.valor,
-          service.pagado_por,
-          service.moneda,
-          conn
-        );
+      if (services && services.length > 0) {
+        for (const service of services) {
+          await ServicesService.updateServiceForTrip(
+            id,
+            service.id,
+            service.valor,
+            service.pagado_por,
+            service.moneda,
+            conn
+          );
+        }
       }
       await conn.commit();
       return id;
     } catch (error) {
       await conn.rollback();
-      console.error("updateTrip ERROR:", error); // 👈 log original
+      console.error('Error updating trip:', error);
 
       if (error instanceof AppError) {
         throw error;
