@@ -1,33 +1,63 @@
-import { db } from "../db/db";
-import { AppError } from "../errors/customErrors";
+import { ITripRepository } from "../interfaces/trip.repository.interface";
+import { IServiceRepository } from "../interfaces/service.repository.interface";
+import {
+  CreateTripDTO,
+  UpdateTripDTO,
+  TripResponseDTO,
+  GetTripsQueryDTO,
+  PaginatedTripsResponseDTO,
+} from "../dtos/trip.dto";
+import { TransactionManager } from "../core/TransactionManager";
+import { ResponseBuilder } from "../core/ResponseBuilder";
 import { ErrorFactory } from "../errors/errorFactory";
-import { GetTripsResponse, Trip } from "../types/types";
-import ServicesService from "./services.service";
 import { VALIDATION } from "../constants/validation";
-import { sanitizeString } from "../utils/validation";
+import {
+  sanitizeString,
+  validateDate,
+  validateDateRange,
+} from "../utils/validation";
+import logger from "../config/logger.config";
+/**
+ * Servicio de viajes con lógica de negocio
+ */
+export class TripService {
+  constructor(
+    private tripRepository: ITripRepository,
+    private serviceRepository: IServiceRepository
+  ) {}
 
-class TripService {
-  static async getTrips(
-    filter: string | number | null,
-    limit: number,
-    offset: number,
-    month: number | null,
-    year: number | null
-  ): Promise<GetTripsResponse> {
-    // ✅ Validación y sanitización de inputs
-    if (filter !== null && typeof filter === 'string') {
+  /**
+   * Obtener viajes con paginación y filtros
+   */
+  async getTrips(query: GetTripsQueryDTO): Promise<PaginatedTripsResponseDTO> {
+    // Validación y sanitización
+    let filter = query.filter ?? null;
+    if (filter !== null && typeof filter === "string") {
       filter = sanitizeString(filter, VALIDATION.DB.MAX_STRING_LENGTH);
     }
 
+    const limit = query.limit ?? 10;
+    const page = query.page ?? 1;
+    const offset = (page - 1) * limit;
+
+    // Validar límites
     if (limit < 1 || limit > VALIDATION.DB.MAX_STRING_LENGTH) {
       throw ErrorFactory.badRequest("Límite inválido");
     }
 
     if (offset < 0) {
-      throw ErrorFactory.badRequest("Offset inválido");
+      throw ErrorFactory.badRequest("Página inválida");
     }
 
-    if (month !== null && (month < VALIDATION.FINANCE.MIN_MONTH || month > VALIDATION.FINANCE.MAX_MONTH)) {
+    // Validar mes y año
+    const month = query.month ?? null;
+    const year = query.year ?? null;
+
+    if (
+      month !== null &&
+      (month < VALIDATION.FINANCE.MIN_MONTH ||
+        month > VALIDATION.FINANCE.MAX_MONTH)
+    ) {
       throw ErrorFactory.badRequest("Mes inválido");
     }
 
@@ -35,93 +65,74 @@ class TripService {
       throw ErrorFactory.badRequest("Año inválido");
     }
 
-    const conn = await db.getConnection();
-    try {
-      const [res]: any = await conn.query(
-        "CALL obtener_viajes(?, ?, ?, ?, ?)",
-        [filter, limit, offset, month, year]
-      );
+    logger.info("Fetching trips", { filter, limit, offset, month, year });
 
-      const data = res[0];
-      const total = res[1]?.[0].total || 0;
+    // Obtener datos
+    const { data, total } = await this.tripRepository.findAll(
+      filter,
+      limit,
+      offset,
+      month,
+      year
+    );
 
-      return { data, total };
-    } catch (error) {
-      await conn.rollback();
-      if (error instanceof AppError) {
-        throw error;
-      }
-
-      throw ErrorFactory.internal("Error inesperado del sistema");
-    } finally {
-      conn.release();
-    }
+    // Construir respuesta paginada
+    const pagination = ResponseBuilder.buildPaginationMeta(page, total, limit);
+    console.log(data);
+    return {
+      data,
+      pagination,
+    };
   }
 
-  static async getTrip(id: string): Promise<Trip> {
-    const conn = await db.getConnection();
-    try {
-      const [res]: any = await conn.query("CALL obtener_viaje(?)", [id]);
+  /**
+   * Obtener un viaje por ID
+   */
+  async getTrip(id: string): Promise<TripResponseDTO> {
+    logger.info("Fetching trip", { tripId: id });
 
-      if (!res[0][0] || res.length === 0)
-        throw ErrorFactory.notFound("No se encontraron resultados");
+    const trip = await this.tripRepository.findById(id);
 
-      return res[0][0];
-    } catch (error) {
-      await conn.rollback();
-      if (error instanceof AppError) {
-        throw error;
-      }
-
-      throw ErrorFactory.internal("Error inesperado del sistema");
-    } finally {
-      conn.release();
+    if (!trip) {
+      throw ErrorFactory.notFound("Viaje no encontrado");
     }
+
+    return trip;
   }
 
-  static async createTrip(
-    surname: string,
-    amount: number,
-    destiny: string,
-    departureDate: Date,
-    returnDate: Date,
-    currency: number,
-    services: {
-      id: number;
-      valor: number;
-      pagado_por: "pendiente" | "pablo" | "soledad" | "mariana";
-      moneda: number;
-    }[]
-  ): Promise<Pick<Trip, "id">> {
-    // ✅ Validar servicios antes de comenzar
-    if (!services || services.length === 0) {
-      throw ErrorFactory.badRequest('Debe proporcionar al menos un servicio');
-    }
+  /**
+   * Crear un nuevo viaje con servicios
+   */
+  async createTrip(data: CreateTripDTO): Promise<{ id: string }> {
+    // Validar servicios
+    this.validateServices(data.servicios);
 
-    services.forEach((service, index) => {
-      if (!service.id || !service.valor || !service.moneda) {
-        throw ErrorFactory.badRequest(`El servicio en posición ${index + 1} está incompleto`);
-      }
-      if (service.valor <= 0) {
-        throw ErrorFactory.badRequest(`El valor del servicio debe ser mayor a 0`);
-      }
+    // Validar fechas
+    this.validateTripDates(data.fecha_ida, data.fecha_vuelta);
+
+    logger.info("Creating trip", {
+      apellido: data.apellido,
+      servicesCount: data.servicios.length,
     });
 
-    const conn = await db.getConnection();
-
-    try {
-      await conn.beginTransaction();
-      const [res]: any = await conn.query(
-        "CALL insertar_viaje (?, ?, ?, ?, ?, ?)",
-        [surname, amount, destiny, departureDate, returnDate, currency]
+    // Ejecutar en transacción
+    const tripId = await TransactionManager.execute(async (conn) => {
+      // Crear viaje
+      const id = await this.tripRepository.create(
+        {
+          apellido: data.apellido,
+          valor_total: data.valor_total,
+          destino: data.destino,
+          fecha_ida: data.fecha_ida,
+          fecha_vuelta: data.fecha_vuelta,
+          moneda: data.moneda,
+        },
+        conn
       );
 
-      if (!res[0][0] || res.length === 0)
-        throw ErrorFactory.notFound("No se encontraron resultados");
-
-      const id = res[0]?.[0]?.id;
-      for (const service of services) {
-        await ServicesService.createServiceForTrip(
+      // Crear servicios asociados
+      for (const service of data.servicios) {
+        await this.serviceRepository.createForTrip(
           id,
           service.id,
           service.valor,
@@ -131,54 +142,46 @@ class TripService {
           conn
         );
       }
-      await conn.commit();
 
+      logger.info("Trip created successfully", { tripId: id });
       return id;
-    } catch (error) {
-      await conn.rollback();
-      console.error('Error creating trip:', error);
-      if (error instanceof AppError) {
-        throw error;
-      }
+    });
 
-      throw ErrorFactory.internal("Error inesperado del sistema");
-    } finally {
-      conn.release();
-    }
+    return { id: tripId };
   }
 
-  static async updateTrip(
-    tripId: string,
-    surname: string | null,
-    amount: number | null,
-    destiny: string | null,
-    departureDate: Date | null,
-    returnDate: Date | null,
-    currency: number | null,
-    services: {
-      id: number;
-      valor: number;
-      pagado_por: "pendiente" | "pablo" | "soledad" | "mariana";
-      moneda: number;
-    }[]
-  ): Promise<Pick<Trip, "id">> {
-    const conn = await db.getConnection();
-    try {
-      await conn.beginTransaction();
-      const [res]: any = await conn.query(
-        "CALL actualizar_viaje(?, ?, ?, ?, ?, ?, ?)",
-        [tripId, surname, amount, destiny, departureDate, returnDate, currency]
+  /**
+   * Actualizar un viaje existente
+   */
+  async updateTrip(id: string, data: UpdateTripDTO): Promise<{ id: string }> {
+    // Validar fechas si están presentes
+    if (data.fecha_ida && data.fecha_vuelta) {
+      this.validateTripDates(data.fecha_ida, data.fecha_vuelta);
+    }
+
+    logger.info("Updating trip", { tripId: id });
+
+    // Ejecutar en transacción
+    const tripId = await TransactionManager.execute(async (conn) => {
+      // Actualizar viaje
+      const updatedId = await this.tripRepository.update(
+        id,
+        {
+          apellido: data.apellido,
+          valor_total: data.valor_total,
+          destino: data.destino,
+          fecha_ida: data.fecha_ida,
+          fecha_vuelta: data.fecha_vuelta,
+          moneda: data.moneda,
+        },
+        conn
       );
 
-      if (!res[0][0] || res.length === 0)
-        throw ErrorFactory.notFound("No se encontraron resultados");
-
-      const id = res[0]?.[0]?.id;
-
-      if (services && services.length > 0) {
-        for (const service of services) {
-          await ServicesService.updateServiceForTrip(
-            id,
+      // Actualizar servicios si están presentes
+      if (data.servicios && data.servicios.length > 0) {
+        for (const service of data.servicios) {
+          await this.serviceRepository.updateForTrip(
+            updatedId,
             service.id,
             service.valor,
             service.pagado_por,
@@ -187,47 +190,65 @@ class TripService {
           );
         }
       }
-      await conn.commit();
-      return id;
-    } catch (error) {
-      await conn.rollback();
-      console.error('Error updating trip:', error);
 
-      if (error instanceof AppError) {
-        throw error;
-      }
+      logger.info("Trip updated successfully", { tripId: updatedId });
+      return updatedId;
+    });
 
-      throw ErrorFactory.internal("Error inesperado del sistema");
-    } finally {
-      conn.release();
-    }
+    return { id: tripId };
   }
 
-  static async deleteTrip(tripId: string): Promise<Pick<Trip, "id">> {
-    const conn = await db.getConnection();
-    try {
-      await conn.beginTransaction();
-      const [res]: any = await conn.query("CALL eliminar_viaje(?)", [tripId]);
+  /**
+   * Eliminar un viaje
+   */
+  async deleteTrip(id: string): Promise<{ id: string }> {
+    logger.info("Deleting trip", { tripId: id });
 
-      if (!res[0][0] || res.length === 0)
-        throw ErrorFactory.notFound("No se encontraron resultados");
+    const deletedId = await TransactionManager.execute(async (conn) => {
+      return await this.tripRepository.delete(id, conn);
+    });
 
-      const id = res[0]?.[0]?.id;
-      await conn.commit();
+    logger.info("Trip deleted successfully", { tripId: deletedId });
+    return { id: deletedId };
+  }
 
-      return id;
-    } catch (error) {
-      await conn.rollback();
+  /**
+   * Validar servicios antes de crear/actualizar
+   */
+  private validateServices(services: CreateTripDTO["servicios"]): void {
+    if (!services || services.length === 0) {
+      throw ErrorFactory.badRequest("Debe proporcionar al menos un servicio");
+    }
 
-      if (error instanceof AppError) {
-        throw error;
+    services.forEach((service, index) => {
+      if (!service.id || !service.valor || !service.moneda) {
+        throw ErrorFactory.badRequest(
+          `El servicio en posición ${index + 1} está incompleto`
+        );
       }
+      if (service.valor <= 0) {
+        throw ErrorFactory.badRequest(
+          `El valor del servicio debe ser mayor a 0`
+        );
+      }
+    });
+  }
 
-      throw ErrorFactory.internal("Error inesperado del sistema");
-    } finally {
-      conn.release();
+  /**
+   * Validar fechas de viaje
+   */
+  private validateTripDates(startDate: Date, endDate: Date): void {
+    if (!validateDate(startDate)) {
+      throw ErrorFactory.badRequest("Fecha de ida inválida");
+    }
+
+    if (!validateDate(endDate)) {
+      throw ErrorFactory.badRequest("Fecha de vuelta inválida");
+    }
+
+    const validation = validateDateRange(startDate, endDate);
+    if (!validation.valid) {
+      throw ErrorFactory.badRequest(validation.error || "Error en las fechas");
     }
   }
 }
-
-export default TripService;

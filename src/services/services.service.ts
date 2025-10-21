@@ -1,138 +1,88 @@
-import { db } from "../db/db";
-import { AppError } from "../errors/customErrors";
-import { ErrorFactory } from "../errors/errorFactory";
-import { PoolConnection } from "mysql2/promise";
+import { IServiceRepository } from "../interfaces/service.repository.interface";
+import {
+  CreateServiceForTripDTO,
+  UpdateServiceForTripDTO,
+  ServiceResponseDTO,
+} from "../dtos/service.dto";
+import { TransactionManager } from "../core/TransactionManager";
+import logger from "../config/logger.config";
+/**
+ * Servicio de servicios con lógica de negocio
+ */
+export class ServicesService {
+  constructor(private serviceRepository: IServiceRepository) {}
 
-class ServicesService {
-  static async getServices() {
-    const conn = await db.getConnection();
-    try {
-      const [res]: any = await conn.query("SELECT * FROM servicio_tipo");
-      if (!res || res.length === 0)
-        throw ErrorFactory.notFound("No se encontraron los servicios");
-
-      return res;
-    } catch (error) {
-      await conn.rollback();
-      if (error instanceof AppError) {
-        throw error;
-      }
-
-      throw ErrorFactory.internal("Error inesperado del sistema");
-    } finally {
-      conn.release();
-    }
+  /**
+   * Obtener todos los servicios disponibles
+   */
+  async getServices(): Promise<ServiceResponseDTO[]> {
+    logger.info("Fetching all services");
+    return await this.serviceRepository.findAll();
   }
 
-  static async createServiceForTrip(
+  /**
+   * Crear un servicio para un viaje
+   */
+  async createServiceForTrip(data: CreateServiceForTripDTO): Promise<void> {
+    logger.info("Creating service for trip", {
+      tripId: data.viaje_id,
+      serviceId: data.servicio_id,
+    });
+
+    await TransactionManager.execute(async (conn) => {
+      await this.serviceRepository.createForTrip(
+        data.viaje_id,
+        data.servicio_id,
+        data.valor,
+        data.pagado_por,
+        data.moneda,
+        null,
+        conn
+      );
+    });
+
+    logger.info("Service created for trip successfully", {
+      tripId: data.viaje_id,
+      serviceId: data.servicio_id,
+    });
+  }
+
+  /**
+   * Actualizar un servicio de un viaje
+   */
+  async updateServiceForTrip(
     tripId: string,
     serviceId: number,
-    amount: number,
-    payFor: string,
-    currency: number,
-    rateChange: number | null,
-    conn?: PoolConnection
+    data: UpdateServiceForTripDTO
   ): Promise<void> {
-    const connection = conn || (await db.getConnection());
-    const shouldManageConnection = !conn;
+    logger.info("Updating service for trip", { tripId, serviceId });
 
-    try {
-      await connection.query("CALL insertar_servicio_viaje(?, ?, ?, ?, ?, ?)", [
+    await TransactionManager.execute(async (conn) => {
+      // Obtener valores actuales si no se proporcionan
+      // En un caso real, podrías querer obtener el servicio actual primero
+      await this.serviceRepository.updateForTrip(
         tripId,
         serviceId,
-        amount,
-        payFor,
-        currency,
-        rateChange,
-      ]);
-      
-      if (shouldManageConnection) {
-        await connection.commit();
-      }
-    } catch (error) {
-      if (shouldManageConnection) {
-        await connection.rollback();
-      }
-      
-      if (error instanceof AppError) {
-        throw error;
-      }
+        data.valor!,
+        data.pagado_por!,
+        data.moneda!,
+        conn
+      );
+    });
 
-      throw ErrorFactory.internal("Error inesperado del sistema");
-    } finally {
-      if (shouldManageConnection) {
-        connection.release();
-      }
-    }
+    logger.info("Service updated for trip successfully", { tripId, serviceId });
   }
 
-  static async updateServiceForTrip(
-    tripId: string | number,
-    serviceId: number,
-    amount: number,
-    payFor: string,
-    currency: number,
-    conn?: PoolConnection
-  ): Promise<void> {
-    const localConn = conn ?? (await db.getConnection());
-    const shouldManageTransaction = !conn;
+  /**
+   * Eliminar un servicio de un viaje
+   */
+  async deleteServiceForTrip(tripId: string, serviceId: number): Promise<void> {
+    logger.info("Deleting service for trip", { tripId, serviceId });
 
-    try {
-      if (shouldManageTransaction) {
-        await localConn.beginTransaction();
-      }
-      
-      await localConn.query(
-        "CALL actualizar_servicio_viaje(?, ?, ?, ?, ?)",
-        [tripId, serviceId, amount, payFor, currency]
-      );
-      
-      if (shouldManageTransaction) {
-        await localConn.commit();
-      }
-    } catch (error) {
-      if (shouldManageTransaction) {
-        await localConn.rollback();
-      }
-      
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      console.error('Error updating service:', error);
-      throw ErrorFactory.internal("Error al actualizar servicio"); // ✅ CORREGIDO: Re-lanzar error
-    } finally {
-      if (shouldManageTransaction) {
-        localConn.release();
-      }
-    }
-  }
+    await TransactionManager.execute(async (conn) => {
+      await this.serviceRepository.deleteForTrip(tripId, serviceId, conn);
+    });
 
-  static async deleteServiceForTrip(tripId: string, serviceId: number): Promise<void> {
-    const conn = await db.getConnection();
-    try {
-      await conn.beginTransaction();
-
-      const [res]: any = await conn.query(
-        "CALL eliminar_servicio_viaje(?, ?)",
-        [tripId, serviceId]
-      );
-
-      if (res.affectedRows === 0)
-        throw ErrorFactory.badRequest("No se pudo eliminar el servicio");
-
-      await conn.commit();
-    } catch (error) {
-      await conn.rollback();
-      if (error instanceof AppError) {
-        throw error;
-      }
-
-      throw ErrorFactory.internal("Error inesperado del sistema");
-    } finally {
-      conn.release();
-    }
+    logger.info("Service deleted for trip successfully", { tripId, serviceId });
   }
 }
-
-export default ServicesService;

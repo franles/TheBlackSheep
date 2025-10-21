@@ -37,6 +37,7 @@ const config = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GOOGLE_CALLBACK: process.env.GOOGLE_CALLBACK,
+  API_URL: process.env.API_URL || `http://localhost:${process.env.PORT || 8080}`,
 };
 
 // Validar variables críticas

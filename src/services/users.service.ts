@@ -1,29 +1,26 @@
-import { db } from "../db/db";
-import { AppError } from "../errors/customErrors";
+import { UserRepository } from "../repositories/user.repository";
+import { UserDTO } from "../dtos/auth.dto";
 import { ErrorFactory } from "../errors/errorFactory";
-import { User } from "../types/types";
+import logger from "../config/logger.config";
 
-class UserService {
-  static async getUser(email: string): Promise<User> {
-    const conn = await db.getConnection();
-    try {
-      const [res]: any = await conn.query("CALL obtener_usuario(?)", [email]);
+/**
+ * Servicio de usuarios con lógica de negocio
+ */
+export class UserService {
+  constructor(private userRepository: UserRepository) {}
 
-      if (!res[0][0] || res.length === 0)
-        throw ErrorFactory.notFound("No se encontraron resultados");
+  /**
+   * Obtener usuario por email
+   */
+  async getUserByEmail(email: string): Promise<UserDTO> {
+    logger.info("Fetching user by email", { email });
 
-      return res[0][0];
-    } catch (error) {
-      await conn.rollback();
-      if (error instanceof AppError) {
-        throw error;
-      }
+    const user = await this.userRepository.findByEmail(email);
 
-      throw ErrorFactory.internal("Error inesperado del sistema");
-    } finally {
-      conn.release(); // ✅ CORREGIDO: Agregados los paréntesis
+    if (!user) {
+      throw ErrorFactory.notFound("Usuario no encontrado");
     }
+
+    return user;
   }
 }
-
-export default UserService;

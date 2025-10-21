@@ -6,7 +6,8 @@
 .env.production
 .env.test
 *.env
-
+*.node_modules
+*.md
 # Node
 node_modules/
 npm-debug.log*

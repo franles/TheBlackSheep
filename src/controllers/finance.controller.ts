@@ -1,78 +1,95 @@
 import { NextFunction, Request, Response } from "express";
-import FinanceService from "../services/finance.service";
-import { summaryResponse } from "../utils/utils";
+import DIContainer from "../core/DIContainer";
+import { FinanceSummaryQueryDTO } from "../dtos/finance.dto";
+import { ResponseBuilder } from "../core/ResponseBuilder";
 import { ErrorFactory } from "../errors/errorFactory";
 
+// Obtener servicio con dependencias inyectadas
+const financeService = DIContainer.getFinanceService();
+
+/**
+ * Obtener resumen financiero
+ */
 export async function getFinanceSummary(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): Promise<void> {
   try {
     const { anio, mes, moneda } = req.query;
 
     if (!anio) {
-      throw ErrorFactory.badRequest("Faltan el año en los parametros");
+      throw ErrorFactory.badRequest("Falta el año en los parámetros");
     }
 
-    const summary = await FinanceService.getFinanceSummary(
-      Number(mes) || null,
-      Number(anio),
-      String(moneda) || null
-    );
+    const query: FinanceSummaryQueryDTO = {
+      mes: mes ? Number(mes) : undefined,
+      anio: Number(anio),
+      moneda: moneda ? String(moneda) : undefined,
+    };
 
-    const resSummary = summaryResponse(summary);
-    res.status(200).json({ resumen_financiero: resSummary });
+    const summary = await financeService.getFinanceSummary(query);
+
+    res.status(200).json(summary);
   } catch (error) {
     next(error);
   }
 }
 
+/**
+ * Crear tipo de cambio
+ */
 export async function createExchangeRate(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): Promise<void> {
   try {
     const { moneda, valor_base } = req.body;
 
     if (!moneda || !valor_base) {
       throw ErrorFactory.badRequest("Falta la moneda o el valor de la misma");
     }
-    const exchange_rate = await FinanceService.createExchangeRate(
+
+    const exchangeRateId = await financeService.createExchangeRate(
       moneda,
       valor_base
     );
 
-    res.status(200).json({
-      message: "Tipo de cambio creado exitosamente",
-      tipo_cambio_id: exchange_rate,
-    });
+    res.status(201).json(
+      ResponseBuilder.created(
+        { tipo_cambio_id: exchangeRateId },
+        "Tipo de cambio creado exitosamente"
+      )
+    );
   } catch (error) {
     next(error);
   }
 }
 
+/**
+ * Actualizar tipo de cambio
+ */
 export async function updateExchangeRate(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): Promise<void> {
   try {
-    const { rid } = req.params;
+    const { rid: rateId } = req.params;
     const { valor } = req.body;
 
-    if (!rid || !valor) {
+    if (!rateId || !valor) {
       throw ErrorFactory.badRequest(
         "Falta el id o el valor del tipo de cambio"
       );
     }
 
-    await FinanceService.updateExchangeRate(Number(rid), valor);
+    await financeService.updateExchangeRate(Number(rateId), valor);
 
-    res
-      .status(200)
-      .json({ message: "Tipo de cambio actualizado correctamente" });
+    res.status(200).json(
+      ResponseBuilder.message("Tipo de cambio actualizado correctamente")
+    );
   } catch (error) {
     next(error);
   }

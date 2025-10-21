@@ -14,9 +14,15 @@ import compression from "compression";
 import { httpLogger, logRequestBody } from "../middlewares/httpLogger";
 import logger from "./logger.config";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import { setupSwagger } from "./swagger.config";
 
 export const app = express();
 
+// ✅ Configurar Swagger
+setupSwagger(app);
+
+app.use(helmet());
 // ✅ Logger HTTP debe ir primero para capturar todas las requests
 app.use(httpLogger);
 

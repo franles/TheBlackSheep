@@ -13,7 +13,6 @@ const server = app.listen(PORT, () => {
   });
 
   console.log(`\n✅ Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📝 Logs guardados en: ./logs/`);
   console.log(`🔧 Entorno: ${config.NODE_ENV}\n`);
 });
 
