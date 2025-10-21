@@ -305,6 +305,63 @@ const swaggerOptions: swaggerJsdoc.Options = {
           },
         },
 
+        CurrencySummaryDTO: {
+          type: "object",
+          description: "Resumen de finanzas para una moneda específica",
+          properties: {
+            moneda: {
+              type: "string",
+              description: "Nombre de la moneda",
+              example: "usd",
+            },
+            ingreso: {
+              type: "number",
+              format: "float",
+              description: "Monto total de ingresos",
+              example: 64444.0,
+            },
+            egreso: {
+              type: "number",
+              format: "float",
+              description: "Monto total de egresos",
+              example: 20500.0,
+            },
+            ganancia: {
+              type: "number",
+              format: "float",
+              description: "Ganancia neta",
+              example: 43944.0,
+            },
+          },
+          required: ["moneda", "ingreso", "egreso", "ganancia"],
+        },
+
+        FinanceSummaryDTO: {
+          type: "object",
+          description:
+            "Resumen financiero para un mes específico (corresponde a MonthSummaryDTO)",
+          properties: {
+            mes: {
+              type: "string",
+              description: "Nombre del mes",
+              example: "septiembre",
+            },
+            mes_num: {
+              type: "integer",
+              description: "Número del mes (1-12)",
+              example: 9,
+            },
+            resumen: {
+              type: "array",
+              description: "Lista de resúmenes por moneda",
+              items: {
+                $ref: "#/components/schemas/CurrencySummaryDTO",
+              },
+            },
+          },
+          required: ["mes", "mes_num", "resumen"],
+        },
+
         UpdateServiceInTripDTO: {
           type: "object",
           required: ["id", "valor", "pagado_por", "moneda"],
@@ -379,45 +436,6 @@ const swaggerOptions: swaggerJsdoc.Options = {
               nullable: true,
               description: "Descripción del servicio",
               example: "Alojamiento en hotel 4 estrellas",
-            },
-          },
-        },
-
-        // ==================== DTOs de Finanzas ====================
-        FinanceSummaryDTO: {
-          type: "object",
-          properties: {
-            totalIngresos: {
-              type: "number",
-              description: "Total de ingresos",
-              example: 15000.0,
-            },
-            totalCostos: {
-              type: "number",
-              description: "Total de costos",
-              example: 12000.0,
-            },
-            totalGanancias: {
-              type: "number",
-              description: "Total de ganancias",
-              example: 3000.0,
-            },
-            viajesPendientes: {
-              type: "integer",
-              description: "Cantidad de viajes pendientes",
-              example: 5,
-            },
-            viajesFinalizados: {
-              type: "integer",
-              description: "Cantidad de viajes finalizados",
-              example: 48,
-            },
-            exchangeRates: {
-              type: "array",
-              items: {
-                $ref: "#/components/schemas/ExchangeRateDTO",
-              },
-              description: "Tipos de cambio disponibles",
             },
           },
         },

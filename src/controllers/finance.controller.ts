@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import DIContainer from "../core/DIContainer";
 import { FinanceSummaryQueryDTO } from "../dtos/finance.dto";
-import { ResponseBuilder } from "../core/ResponseBuilder";
 import { ErrorFactory } from "../errors/errorFactory";
-
+import { ResponseBuilder } from "../core/ResponseBuilder";
 // Obtener servicio con dependencias inyectadas
 const financeService = DIContainer.getFinanceService();
 
@@ -25,12 +24,12 @@ export async function getFinanceSummary(
     const query: FinanceSummaryQueryDTO = {
       mes: mes ? Number(mes) : undefined,
       anio: Number(anio),
-      moneda: moneda ? String(moneda) : undefined,
+      moneda: moneda ? Number(moneda) : null,
     };
 
     const summary = await financeService.getFinanceSummary(query);
 
-    res.status(200).json(summary);
+    res.status(200).json(ResponseBuilder.success({ data: summary }));
   } catch (error) {
     next(error);
   }
@@ -56,12 +55,14 @@ export async function createExchangeRate(
       valor_base
     );
 
-    res.status(201).json(
-      ResponseBuilder.created(
-        { tipo_cambio_id: exchangeRateId },
-        "Tipo de cambio creado exitosamente"
-      )
-    );
+    res
+      .status(201)
+      .json(
+        ResponseBuilder.created(
+          { tipo_cambio_id: exchangeRateId },
+          "Tipo de cambio creado exitosamente"
+        )
+      );
   } catch (error) {
     next(error);
   }
@@ -87,9 +88,11 @@ export async function updateExchangeRate(
 
     await financeService.updateExchangeRate(Number(rateId), valor);
 
-    res.status(200).json(
-      ResponseBuilder.message("Tipo de cambio actualizado correctamente")
-    );
+    res
+      .status(200)
+      .json(
+        ResponseBuilder.message("Tipo de cambio actualizado correctamente")
+      );
   } catch (error) {
     next(error);
   }

@@ -50,10 +50,10 @@ export class FinanceService {
       query.anio,
       query.moneda ?? null
     );
+    console.log(summary);
+    const data = summaryResponse(summary);
 
-    const formattedSummary = summaryResponse(summary);
-
-    return { resumen_financiero: formattedSummary };
+    return data;
   }
 
   /**

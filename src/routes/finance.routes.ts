@@ -39,26 +39,24 @@ const router = Router();
  *               success: true
  *               message: Resumen financiero obtenido exitosamente
  *               data:
- *                 totalIngresos: 125000.00
- *                 totalCostos: 98000.00
- *                 totalGanancias: 27000.00
- *                 viajesPendientes: 8
- *                 viajesFinalizados: 52
- *                 exchangeRates:
- *                   - id: 1
- *                     moneda: USD
- *                     tasa: 1050.50
- *                     fecha_actualizacion: '2025-10-19T12:00:00Z'
- *                   - id: 2
- *                     moneda: EUR
- *                     tasa: 1150.75
- *                     fecha_actualizacion: '2025-10-19T12:00:00Z'
+ *                 - mes: "julio"
+ *                   mes_num: 7
+ *                   resumen:
+ *                     - moneda: "ars"
+ *                       ingreso: 500000.00
+ *                       egreso: 200000.00
+ *                       ganancia: 300000.00
+ *                     - moneda: "usd"
+ *                       ingreso: 50000.00
+ *                       egreso: 20000.00
+ *                       ganancia: 30000.00
  *               timestamp: '2025-10-19T12:00:00Z'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
+
 router.get("/", getFinanceSummary);
 
 /**

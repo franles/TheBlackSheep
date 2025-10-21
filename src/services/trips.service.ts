@@ -77,7 +77,7 @@ export class TripService {
     );
 
     // Construir respuesta paginada
-    const pagination = ResponseBuilder.buildPaginationMeta(page, total, limit);
+    const pagination = ResponseBuilder.buildPagination(page, total, limit);
     console.log(data);
     return {
       data,

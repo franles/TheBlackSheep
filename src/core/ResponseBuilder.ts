@@ -1,143 +1,182 @@
-import { PaginationMetaDTO } from '../dtos/trip.dto';
+import { PaginationDTO, PaginatedResponseDTO } from "../dtos/pagination.dto";
+import { datetimeUtc3 } from "../utils/utils";
 
 /**
- * Response estandarizada de éxito
+ * Opciones para respuesta de éxito
  */
-export interface SuccessResponse<T> {
-  success: true;
-  message?: string;
+interface SuccessOptions<T> {
   data: T;
+  message?: string;
   meta?: Record<string, any>;
 }
 
 /**
- * Response estandarizada de error
+ * Opciones para respuesta de error
  */
-export interface ErrorResponse {
-  success: false;
+interface ErrorOptions {
   message: string;
-  code?: string;
   errors?: any[];
+  code?: string;
+  statusCode?: number;
 }
 
 /**
- * Response paginada
+ * Utilidad para construir respuestas HTTP consistentes
  */
-export interface PaginatedResponse<T> {
-  success: true;
-  data: T[];
-  pagination: PaginationMetaDTO;
-}
 
-/**
- * Builder para respuestas HTTP estandarizadas
- */
+const date = new Date();
+
 export class ResponseBuilder {
   /**
-   * Construir respuesta de éxito
+   * Construye una respuesta de éxito
    */
-  static success<T>(
-    data: T,
-    message?: string,
-    meta?: Record<string, any>
-  ): SuccessResponse<T> {
+
+  static success<T>(options: SuccessOptions<T>) {
+    const { data, message = "Operación exitosa", meta } = options;
+
     return {
       success: true,
-      message: message || 'Operación exitosa',
+      message,
       data,
       ...(meta && { meta }),
+      timestamp: datetimeUtc3(date),
     };
   }
 
   /**
-   * Construir respuesta de error
+   * Construye una respuesta de error
    */
-  static error(
-    message: string,
-    errors?: any[],
-    code?: string
-  ): ErrorResponse {
+  static error(options: ErrorOptions) {
+    const { message, errors, code, statusCode } = options;
+
     return {
       success: false,
       message,
       ...(code && { code }),
+      ...(statusCode && { statusCode }),
       ...(errors && { errors }),
+      timestamp: datetimeUtc3(date),
     };
   }
 
   /**
-   * Construir respuesta paginada
+   * Construye una respuesta paginada
    */
   static paginated<T>(
     data: T[],
-    pagination: PaginationMetaDTO,
-    message?: string
-  ): PaginatedResponse<T> {
+    pagination: PaginationDTO
+  ): PaginatedResponseDTO<T> {
     return {
-      success: true,
-      ...(message && { message }),
       data,
-      pagination,
+      pagination: {
+        ...pagination,
+        hasNextPage: pagination.currentPage < pagination.totalPages,
+        hasPreviousPage: pagination.currentPage > 1,
+      },
     };
   }
 
   /**
-   * Construir respuesta para datos que ya vienen paginados
-   * Usado cuando el servicio retorna { data, pagination }
+   * Construye respuesta para creación de recurso
    */
-  static paginatedFromService<T>(result: { data: T[]; pagination: PaginationMetaDTO }, message?: string) {
+  static created<T>(data: T, message: string = "Recurso creado exitosamente") {
     return {
       success: true,
-      ...(message && { message }),
-      ...result,
+      message,
+      data,
+      timestamp: datetimeUtc3(date),
     };
   }
 
   /**
-   * Construir respuesta simple de éxito (sin data)
+   * Construye respuesta para actualización de recurso
    */
-  static message(message: string): { message: string } {
-    return { message };
+  static updated<T>(
+    data: T,
+    message: string = "Recurso actualizado exitosamente"
+  ) {
+    return {
+      success: true,
+      message,
+      data,
+      timestamp: datetimeUtc3(date),
+    };
   }
 
   /**
-   * Construir metadata de paginación
+   * Construye respuesta para eliminación de recurso
    */
-  static buildPaginationMeta(
+  static deleted(message: string = "Recurso eliminado exitosamente") {
+    return {
+      success: true,
+      message,
+      timestamp: datetimeUtc3(date),
+    };
+  }
+
+  /**
+   * Construye respuesta sin contenido (204)
+   */
+  static noContent() {
+    return null;
+  }
+
+  /**
+   * Construye metadata de paginación
+   */
+  static buildPagination(
     currentPage: number,
-    totalItems: number,
-    limit: number
-  ): PaginationMetaDTO {
+    limit: number,
+    totalItems: number
+  ): PaginationDTO {
     const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
 
     return {
       currentPage: Math.min(currentPage, totalPages),
-      totalItems,
       totalPages,
+      totalItems,
+      limit,
       hasNextPage: currentPage < totalPages,
       hasPreviousPage: currentPage > 1,
-      limit,
     };
   }
 
-  /**
-   * Construir respuesta con data y mensaje
-   */
-  static created<T>(data: T, message: string = 'Recurso creado exitosamente'): SuccessResponse<T> {
-    return this.success(data, message);
+  static message(message: string) {
+    return { message, timestamp: datetimeUtc3(date) };
   }
 
   /**
-   * Construir respuesta de actualización
+   * Construye respuesta con links de paginación (HATEOAS)
    */
-  static updated<T>(data: T, message: string = 'Recurso actualizado exitosamente'): SuccessResponse<T> {
-    return this.success(data, message);
-  }
+  static paginatedWithLinks<T>(
+    data: T[],
+    pagination: PaginationDTO,
+    baseUrl: string
+  ) {
+    const links: Record<string, string> = {
+      self: `${baseUrl}?page=${pagination.currentPage}&limit=${pagination.limit}`,
+    };
 
-  /**
-   * Construir respuesta de eliminación
-   */
-  static deleted(message: string = 'Recurso eliminado exitosamente'): { message: string } {
-    return this.message(message);
+    if (pagination.hasNextPage) {
+      links.next = `${baseUrl}?page=${pagination.currentPage + 1}&limit=${
+        pagination.limit
+      }`;
+    }
+
+    if (pagination.hasPreviousPage) {
+      links.prev = `${baseUrl}?page=${pagination.currentPage - 1}&limit=${
+        pagination.limit
+      }`;
+    }
+
+    links.first = `${baseUrl}?page=1&limit=${pagination.limit}`;
+    links.last = `${baseUrl}?page=${pagination.totalPages}&limit=${pagination.limit}`;
+
+    return {
+      data,
+      pagination,
+      links,
+      timestamp: datetimeUtc3(date),
+    };
   }
 }

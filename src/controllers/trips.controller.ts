@@ -13,7 +13,7 @@ import {
   UpdateTripDTO,
   GetTripsQueryDTO,
 } from "../dtos/trip.dto";
-import { ResponseBuilder } from "../utils/ResponseBuilder";
+import { ResponseBuilder } from "../core/ResponseBuilder";
 
 // Obtener servicio con dependencias inyectadas
 const tripService = DIContainer.getTripService();
@@ -57,7 +57,7 @@ export async function getTrips(
 
     res.status(200).json({
       success: true,
-      message: 'Viajes obtenidos exitosamente',
+      message: "Viajes obtenidos exitosamente",
       data: result.data,
       pagination: result.pagination,
       timestamp: new Date().toISOString(),
@@ -79,7 +79,14 @@ export async function getTrip(
     const { tid: tripId } = req.params;
     const trip = await tripService.getTrip(tripId);
 
-    res.status(200).json(ResponseBuilder.success({ data: trip, message: 'Viaje obtenido exitosamente' }));
+    res
+      .status(200)
+      .json(
+        ResponseBuilder.success({
+          data: trip,
+          message: "Viaje obtenido exitosamente",
+        })
+      );
   } catch (error) {
     next(error);
   }
@@ -135,7 +142,9 @@ export async function createTrip(
 
     const result = await tripService.createTrip(tripData);
 
-    res.status(201).json(ResponseBuilder.created(result, 'Viaje creado exitosamente'));
+    res
+      .status(201)
+      .json(ResponseBuilder.created(result, "Viaje creado exitosamente"));
   } catch (error) {
     next(error);
   }
@@ -204,7 +213,9 @@ export async function updateTrip(
 
     const result = await tripService.updateTrip(tripId, tripData);
 
-    res.status(200).json(ResponseBuilder.updated(result, 'Viaje actualizado exitosamente'));
+    res
+      .status(200)
+      .json(ResponseBuilder.updated(result, "Viaje actualizado exitosamente"));
   } catch (error) {
     next(error);
   }
@@ -223,7 +234,9 @@ export async function deleteTrip(
 
     await tripService.deleteTrip(tripId);
 
-    res.status(200).json(ResponseBuilder.deleted('Viaje eliminado exitosamente'));
+    res
+      .status(200)
+      .json(ResponseBuilder.deleted("Viaje eliminado exitosamente"));
   } catch (error) {
     next(error);
   }

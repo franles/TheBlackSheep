@@ -1,36 +1,42 @@
-import { User } from "../types/types";
+import { UserDTO } from "../dtos/user.dto";
 import jwt from "jsonwebtoken";
 import config from "../config/config";
 import { AUTH } from "../constants/auth";
 
-export function generateAccessToken(user: User): string {
+export function generateAccessToken(user: UserDTO): string {
   if (!config.JWT_ACCESS_SECRET) {
-    throw new Error('JWT_ACCESS_SECRET no está configurado');
+    throw new Error("JWT_ACCESS_SECRET no está configurado");
   }
-  return jwt.sign(user, config.JWT_ACCESS_SECRET, { 
-    expiresIn: AUTH.ACCESS_TOKEN_EXPIRY 
+  return jwt.sign(user, config.JWT_ACCESS_SECRET, {
+    expiresIn: AUTH.ACCESS_TOKEN_EXPIRY,
   });
 }
 
-export function generateRefreshToken(user: Pick<User, "email" | "nombre">): string {
+export function generateRefreshToken(
+  user: Pick<UserDTO, "email" | "nombre">
+): string {
   if (!config.JWT_REFRESH_SECRET) {
-    throw new Error('JWT_REFRESH_SECRET no está configurado');
+    throw new Error("JWT_REFRESH_SECRET no está configurado");
   }
-  return jwt.sign(user, config.JWT_REFRESH_SECRET, { 
-    expiresIn: AUTH.REFRESH_TOKEN_EXPIRY 
+  return jwt.sign(user, config.JWT_REFRESH_SECRET, {
+    expiresIn: AUTH.REFRESH_TOKEN_EXPIRY,
   });
 }
 
-export function verifyAccessToken(token: string): User | string | jwt.JwtPayload {
+export function verifyAccessToken(
+  token: string
+): UserDTO | string | jwt.JwtPayload {
   if (!config.JWT_ACCESS_SECRET) {
-    throw new Error('JWT_ACCESS_SECRET no está configurado');
+    throw new Error("JWT_ACCESS_SECRET no está configurado");
   }
   return jwt.verify(token, config.JWT_ACCESS_SECRET);
 }
 
-export function verifyRefreshToken(token: string): User | string | jwt.JwtPayload {
+export function verifyRefreshToken(
+  token: string
+): UserDTO | string | jwt.JwtPayload {
   if (!config.JWT_REFRESH_SECRET) {
-    throw new Error('JWT_REFRESH_SECRET no está configurado');
+    throw new Error("JWT_REFRESH_SECRET no está configurado");
   }
   return jwt.verify(token, config.JWT_REFRESH_SECRET);
 }
@@ -55,7 +61,9 @@ interface GroupedSummary {
   }>;
 }
 
-export function summaryResponse(summary: FinanceSummaryItem[]): GroupedSummary[] {
+export function summaryResponse(
+  summary: FinanceSummaryItem[]
+): GroupedSummary[] {
   const grouped: GroupedSummary[] = [];
 
   summary.forEach((item) => {
@@ -79,4 +87,9 @@ export function summaryResponse(summary: FinanceSummaryItem[]): GroupedSummary[]
   });
 
   return grouped;
+}
+
+export function datetimeUtc3(date: Date): string {
+  date.setUTCHours(date.getUTCHours() - 3);
+  return date.toISOString();
 }

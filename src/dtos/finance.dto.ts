@@ -4,15 +4,13 @@
 export interface FinanceSummaryQueryDTO {
   mes?: number;
   anio: number;
-  moneda?: string;
+  moneda: number | null;
 }
 
 /**
  * DTO de respuesta para resumen financiero
  */
-export interface FinanceSummaryResponseDTO {
-  resumen_financiero: MonthSummaryDTO[];
-}
+export type FinanceSummaryResponseDTO = MonthSummaryDTO[];
 
 /**
  * DTO para resumen mensual

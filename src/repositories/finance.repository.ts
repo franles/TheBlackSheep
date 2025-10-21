@@ -1,6 +1,6 @@
-import { PoolConnection } from 'mysql2/promise';
-import { db } from '../db/db';
-import { QueryExecutor } from '../core/QueryExecutor';
+import { PoolConnection } from "mysql2/promise";
+import { db } from "../db/db";
+import { QueryExecutor } from "../core/QueryExecutor";
 
 /**
  * Repositorio para operaciones de base de datos relacionadas con finanzas
@@ -13,11 +13,11 @@ export class FinanceRepository {
   async getFinanceSummary(
     month: number | null,
     year: number,
-    currency: string | null,
+    currency: number | null,
     conn?: PoolConnection
   ): Promise<any[]> {
     const results = await QueryExecutor.executeStoredProcedure<any>(
-      'resumen_financiero',
+      "resumen_financiero",
       [month, year, currency],
       { expectMultipleRows: true },
       conn
@@ -32,7 +32,7 @@ export class FinanceRepository {
     conn?: PoolConnection
   ): Promise<number> {
     const insertId = await QueryExecutor.executeInsert(
-      'INSERT INTO tipo_cambio(fecha, moneda_id, valor_base) VALUES(NOW(), ?, ?)',
+      "INSERT INTO tipo_cambio(fecha, moneda_id, valor_base) VALUES(NOW(), ?, ?)",
       [currency, amount],
       conn
     );
@@ -46,7 +46,7 @@ export class FinanceRepository {
     conn?: PoolConnection
   ): Promise<number> {
     const affectedRows = await QueryExecutor.executeUpdate(
-      'UPDATE tipo_cambio SET valor_base = ? WHERE id = ?',
+      "UPDATE tipo_cambio SET valor_base = ? WHERE id = ?",
       [amount, id],
       conn
     );

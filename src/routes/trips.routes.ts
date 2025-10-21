@@ -56,29 +56,28 @@ const router = Router();
  *               success: true
  *               message: Viajes obtenidos exitosamente
  *               data:
- *                 data:
- *                   - id: '550e8400-e29b-41d4-a716-446655440000'
- *                     estado: pendiente
- *                     fecha_ida: '2025-01-15T10:00:00Z'
- *                     fecha_vuelta: '2025-01-20T18:00:00Z'
- *                     moneda: USD
- *                     destino: 'Mar del Plata'
- *                     apellido: González
- *                     valor_total: 1500.50
- *                     ganancia: 300.50
- *                     costo: 1200.00
- *                     servicios:
- *                       - id: 1
- *                         valor: 500.00
- *                         nombre: Hotel
- *                         pagado_por: empresa
- *                 pagination:
- *                   currentPage: 1
- *                   totalPages: 5
- *                   totalItems: 48
- *                   limit: 10
- *                   hasNextPage: true
- *                   hasPreviousPage: false
+ *                 - id: 'tbs001'
+ *                   estado: pendiente
+ *                   fecha_ida: '2025-01-15'
+ *                   fecha_vuelta: '2025-01-20'
+ *                   moneda: USD
+ *                   destino: 'nacional'
+ *                   apellido: González
+ *                   valor_total: 1500.50
+ *                   ganancia: 300.50
+ *                   costo: 1200.00
+ *                   servicios:
+ *                     - id: 1
+ *                       valor: 500.00
+ *                       nombre: Hotel
+ *                       pagado_por: soledad
+ *               pagination:
+ *                 currentPage: 1
+ *                 totalPages: 5
+ *                 totalItems: 48
+ *                 limit: 10
+ *                 hasNextPage: true
+ *                 hasPreviousPage: false
  *               timestamp: '2025-10-19T12:00:00Z'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
@@ -121,12 +120,12 @@ router.get("/", getTrips);
  *               success: true
  *               message: Viaje obtenido exitosamente
  *               data:
- *                 id: '550e8400-e29b-41d4-a716-446655440000'
+ *                 id: 'tbs002'
  *                 estado: pendiente
- *                 fecha_ida: '2025-01-15T10:00:00Z'
- *                 fecha_vuelta: '2025-01-20T18:00:00Z'
+ *                 fecha_ida: '2025-01-15'
+ *                 fecha_vuelta: '2025-01-20'
  *                 moneda: USD
- *                 destino: 'Mar del Plata'
+ *                 destino: 'internacional'
  *                 apellido: González
  *                 valor_total: 1500.50
  *                 ganancia: 300.50
@@ -135,11 +134,11 @@ router.get("/", getTrips);
  *                   - id: 1
  *                     valor: 500.00
  *                     nombre: Hotel
- *                     pagado_por: empresa
+ *                     pagado_por: pablo
  *                   - id: 2
  *                     valor: 700.00
  *                     nombre: Transporte
- *                     pagado_por: empresa
+ *                     pagado_por: mariana
  *               timestamp: '2025-10-19T12:00:00Z'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'

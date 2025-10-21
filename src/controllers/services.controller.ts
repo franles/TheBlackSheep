@@ -1,8 +1,10 @@
 import { NextFunction, Response, Request } from "express";
 import DIContainer from "../core/DIContainer";
-import { CreateServiceForTripDTO, UpdateServiceForTripDTO } from "../dtos/service.dto";
+import {
+  CreateServiceForTripDTO,
+  UpdateServiceForTripDTO,
+} from "../dtos/service.dto";
 import { ResponseBuilder } from "../core/ResponseBuilder";
-
 // Obtener servicio con dependencias inyectadas
 const servicesService = DIContainer.getServicesService();
 
@@ -16,10 +18,8 @@ export async function getServices(
 ): Promise<void> {
   try {
     const services = await servicesService.getServices();
-    
-    res.status(200).json(
-      ResponseBuilder.success(services)
-    );
+
+    res.status(200).json(ResponseBuilder.success({ data: services }));
   } catch (error) {
     next(error);
   }
@@ -46,9 +46,9 @@ export async function createServiceForTrip(
 
     await servicesService.createServiceForTrip(serviceData);
 
-    res.status(201).json(
-      ResponseBuilder.message("Servicio creado exitosamente")
-    );
+    res
+      .status(201)
+      .json(ResponseBuilder.message("Servicio creado exitosamente"));
   } catch (error) {
     next(error);
   }
@@ -78,9 +78,9 @@ export async function updateServiceForTrip(
       serviceData
     );
 
-    res.status(200).json(
-      ResponseBuilder.message("Servicio actualizado exitosamente")
-    );
+    res
+      .status(200)
+      .json(ResponseBuilder.message("Servicio actualizado exitosamente"));
   } catch (error) {
     next(error);
   }
@@ -99,9 +99,9 @@ export async function deleteServiceForTrip(
 
     await servicesService.deleteServiceForTrip(tripId, Number(serviceId));
 
-    res.status(200).json(
-      ResponseBuilder.deleted("Servicio eliminado exitosamente")
-    );
+    res
+      .status(200)
+      .json(ResponseBuilder.deleted("Servicio eliminado exitosamente"));
   } catch (error) {
     next(error);
   }
