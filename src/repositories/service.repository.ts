@@ -1,9 +1,9 @@
-import { PoolConnection } from 'mysql2/promise';
-import { db } from '../db/db';
-import { IServiceRepository } from '../interfaces/service.repository.interface';
-import { ServiceResponseDTO } from '../dtos/service.dto';
-import { QueryExecutor } from '../core/QueryExecutor';
-import { PagadoPorType } from '../constants/validation';
+import { PoolConnection } from "mysql2/promise";
+import { db } from "../db/db";
+import { IServiceRepository } from "../interfaces/service.repository.interface";
+import { ServiceResponseDTO } from "../dtos/service.dto";
+import { QueryExecutor } from "../core/QueryExecutor";
+import { PagadoPorType } from "../constants/validation";
 
 /**
  * Repositorio para operaciones de base de datos relacionadas con servicios
@@ -18,7 +18,9 @@ export class ServiceRepository implements IServiceRepository {
     const connection = conn || (await db.getConnection());
 
     try {
-      const [rows] = await connection.query<any[]>('SELECT * FROM servicio_tipo');
+      const [rows] = await connection.query<any[]>(
+        "SELECT * FROM servicio_tipo"
+      );
       return rows;
     } finally {
       if (shouldReleaseConn) {
@@ -37,7 +39,7 @@ export class ServiceRepository implements IServiceRepository {
     conn?: PoolConnection
   ): Promise<void> {
     await QueryExecutor.executeStoredProcedure(
-      'insertar_servicio_viaje',
+      "insertar_servicio_viaje",
       [tripId, serviceId, amount, payFor, currency, rateChange],
       {},
       conn
@@ -53,7 +55,7 @@ export class ServiceRepository implements IServiceRepository {
     conn?: PoolConnection
   ): Promise<void> {
     await QueryExecutor.executeStoredProcedure(
-      'actualizar_servicio_viaje',
+      "actualizar_servicio_viaje",
       [tripId, serviceId, amount, payFor, currency],
       {},
       conn
@@ -66,7 +68,7 @@ export class ServiceRepository implements IServiceRepository {
     conn?: PoolConnection
   ): Promise<void> {
     await QueryExecutor.executeStoredProcedure(
-      'eliminar_servicio_viaje',
+      "eliminar_servicio_viaje",
       [tripId, serviceId],
       {},
       conn

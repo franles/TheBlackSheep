@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { User } from "../types/types";
+import { UserDTO } from "../dtos/user.dto";
 import { generateAccessToken, verifyRefreshToken } from "../utils/utils";
 import config from "../config/config";
 import { ErrorFactory } from "../errors/errorFactory";
@@ -12,14 +12,12 @@ export async function login(
   next: NextFunction
 ): Promise<void> {
   const { user, refreshToken, accessToken } = req.user as {
-    user: User;
+    user: UserDTO;
     accessToken: string;
     refreshToken: string;
   };
 
   try {
-    const isProduction = config.NODE_ENV === "production";
-
     logger.info("User logged in successfully", {
       email: user.email,
       name: user.nombre,
@@ -28,8 +26,8 @@ export async function login(
 
     res.cookie(AUTH.COOKIE_NAME, refreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "strict" : "lax",
+      secure: config.NODE_ENV === "production" ? true : false,
+      sameSite: config.NODE_ENV === "production" ? "none" : "lax",
       maxAge: AUTH.REFRESH_TOKEN_COOKIE_MAX_AGE,
     });
 
@@ -58,7 +56,7 @@ export async function refreshToken(
   }
 
   try {
-    const user = verifyRefreshToken(refreshToken) as User;
+    const user = verifyRefreshToken(refreshToken) as UserDTO;
     const newAccessToken = generateAccessToken({
       auth: true,
       nombre: user.nombre,
@@ -86,19 +84,14 @@ export async function logout(
   next: NextFunction
 ): Promise<void> {
   try {
-    const isProduction = config.NODE_ENV === "production";
-    const user = req.user as User;
+    const user = req.user as UserDTO;
 
     logger.info("User logged out", {
       email: user?.email,
       timestamp: new Date().toISOString(),
     });
 
-    res.clearCookie(AUTH.COOKIE_NAME, {
-      httpOnly: true,
-      sameSite: isProduction ? "strict" : "lax",
-      secure: isProduction,
-    });
+    res.clearCookie(AUTH.COOKIE_NAME);
 
     res.status(200).json({ message: "Sesion cerrada exitosamente" });
   } catch (error) {
