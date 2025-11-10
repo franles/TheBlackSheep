@@ -227,6 +227,11 @@ router.post("/", tripPostSchema, validateRequest, createTrip);
  *             $ref: '#/components/schemas/UpdateTripDTO'
  *           example:
  *             valor_total: 1600.00
+ *             fecha_ida: 2025-05-10
+ *             fecha_vuelta: 2025-05-19
+ *             apellido: 'Gonzalez'
+ *             moneda: 1
+ *             destino: 'nacional'
  *             servicios:
  *               - id: 1
  *                 valor: 550.00

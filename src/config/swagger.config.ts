@@ -180,7 +180,7 @@ const swaggerOptions: swaggerJsdoc.Options = {
             },
             destino: {
               type: "string",
-              enum: ["Mar del Plata", "CABA", "Rosario"],
+              enum: ["nacional", "internacional"],
               description: "Destino del viaje",
             },
             fecha_ida: {
@@ -430,12 +430,6 @@ const swaggerOptions: swaggerJsdoc.Options = {
               type: "string",
               description: "Nombre del servicio",
               example: "Hotel",
-            },
-            descripcion: {
-              type: "string",
-              nullable: true,
-              description: "Descripción del servicio",
-              example: "Alojamiento en hotel 4 estrellas",
             },
           },
         },
