@@ -104,9 +104,6 @@ export class TripService {
    * Crear un nuevo viaje con servicios
    */
   async createTrip(data: CreateTripDTO): Promise<{ id: string }> {
-    // Validar servicios
-    this.validateServices(data.servicios);
-
     // Validar fechas
     this.validateTripDates(data.fecha_ida, data.fecha_vuelta);
 
@@ -210,28 +207,6 @@ export class TripService {
 
     logger.info("Trip deleted successfully", { tripId: deletedId });
     return { id: deletedId };
-  }
-
-  /**
-   * Validar servicios antes de crear/actualizar
-   */
-  private validateServices(services: CreateTripDTO["servicios"]): void {
-    if (!services || services.length === 0) {
-      throw ErrorFactory.badRequest("Debe proporcionar al menos un servicio");
-    }
-
-    services.forEach((service, index) => {
-      if (!service.id || !service.valor || !service.moneda) {
-        throw ErrorFactory.badRequest(
-          `El servicio en posición ${index + 1} está incompleto`
-        );
-      }
-      if (service.valor <= 0) {
-        throw ErrorFactory.badRequest(
-          `El valor del servicio debe ser mayor a 0`
-        );
-      }
-    });
   }
 
   /**
