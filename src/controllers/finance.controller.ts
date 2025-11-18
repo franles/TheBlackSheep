@@ -24,7 +24,7 @@ export async function getFinanceSummary(
     const query: FinanceSummaryQueryDTO = {
       mes: mes ? Number(mes) : undefined,
       anio: Number(anio),
-      moneda: moneda ? Number(moneda) : null,
+      moneda: moneda && !isNaN(Number(moneda)) ? Number(moneda) : null,  //moneda: moneda ? Number(moneda) : null,
     };
 
     const summary = await financeService.getFinanceSummary(query);

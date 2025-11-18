@@ -101,13 +101,14 @@ export class QueryExecutor {
 
       // Si espera múltiples result sets
       if (options.expectResultSets) {
-        // Log temporal para debugging
-        logger.info('ResultSets structure:', {
+        //log temporal para debbugin
+        logger.info("ResultSets structure:", {
           isArray: Array.isArray(resultSets),
-          length: resultSets?.length,
-          firstElementIsArray: Array.isArray(resultSets[0]),
-          secondElementIsArray: Array.isArray(resultSets[1]),
+          length: Array.isArray(resultSets) ? resultSets.length : 0,
+          firstElementIsArray: Array.isArray(resultSets?.[0]),
+          secondElementIsArray: Array.isArray(resultSets?.[1] ?? null),
         });
+
         return resultSets as T;
       }
 

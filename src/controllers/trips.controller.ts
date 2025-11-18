@@ -166,6 +166,7 @@ export async function updateTrip(
       destino,
       servicios,
       moneda,
+      valor_usd,
       fecha_ida,
       fecha_vuelta,
     } = req.body;
