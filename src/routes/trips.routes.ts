@@ -1,11 +1,5 @@
 import { Router } from "express";
-import {
-  createTrip,
-  deleteTrip,
-  getTrip,
-  getTrips,
-  updateTrip,
-} from "../controllers/trips.controller";
+import DIContainer from "../core/DIContainer";
 import { validateRequest } from "../middlewares/validateRequest";
 import { tripDeleteSchema, tripPostSchema } from "../middlewares/schemas/trips";
 
@@ -84,7 +78,7 @@ const router = Router();
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get("/", getTrips);
+router.get("/", DIContainer.getTripsController().getTrips);
 
 /**
  * @swagger
@@ -147,7 +141,7 @@ router.get("/", getTrips);
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get("/:tid", getTrip);
+router.get("/:tid", DIContainer.getTripsController().getTrip);
 
 /**
  * @swagger
@@ -206,7 +200,12 @@ router.get("/:tid", getTrip);
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post("/", tripPostSchema, validateRequest, createTrip);
+router.post(
+  "/",
+  tripPostSchema,
+  validateRequest,
+  DIContainer.getTripsController().createTrip
+);
 
 /**
  * @swagger
@@ -265,7 +264,7 @@ router.post("/", tripPostSchema, validateRequest, createTrip);
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.patch("/:tid", updateTrip);
+router.patch("/:tid", DIContainer.getTripsController().updateTrip);
 
 /**
  * @swagger
@@ -306,6 +305,11 @@ router.patch("/:tid", updateTrip);
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.delete("/:tid", tripDeleteSchema, validateRequest, deleteTrip);
+router.delete(
+  "/:tid",
+  tripDeleteSchema,
+  validateRequest,
+  DIContainer.getTripsController().deleteTrip
+);
 
 export default router;

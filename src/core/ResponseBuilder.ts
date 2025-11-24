@@ -1,18 +1,12 @@
 import { PaginationDTO, PaginatedResponseDTO } from "../dtos/pagination.dto";
 import { datetimeUtc3 } from "../utils/utils";
 
-/**
- * Opciones para respuesta de éxito
- */
 interface SuccessOptions<T> {
   data: T;
   message?: string;
   meta?: Record<string, any>;
 }
 
-/**
- * Opciones para respuesta de error
- */
 interface ErrorOptions {
   message: string;
   errors?: any[];
@@ -20,17 +14,9 @@ interface ErrorOptions {
   statusCode?: number;
 }
 
-/**
- * Utilidad para construir respuestas HTTP consistentes
- */
-
 const date = new Date();
 
 export class ResponseBuilder {
-  /**
-   * Construye una respuesta de éxito
-   */
-
   static success<T>(options: SuccessOptions<T>) {
     const { data, message = "Operación exitosa", meta } = options;
 
@@ -43,9 +29,6 @@ export class ResponseBuilder {
     };
   }
 
-  /**
-   * Construye una respuesta de error
-   */
   static error(options: ErrorOptions) {
     const { message, errors, code, statusCode } = options;
 
@@ -59,9 +42,6 @@ export class ResponseBuilder {
     };
   }
 
-  /**
-   * Construye una respuesta paginada
-   */
   static paginated<T>(
     data: T[],
     pagination: PaginationDTO
@@ -76,9 +56,6 @@ export class ResponseBuilder {
     };
   }
 
-  /**
-   * Construye respuesta para creación de recurso
-   */
   static created<T>(data: T, message: string = "Recurso creado exitosamente") {
     return {
       success: true,
@@ -88,9 +65,6 @@ export class ResponseBuilder {
     };
   }
 
-  /**
-   * Construye respuesta para actualización de recurso
-   */
   static updated<T>(
     data: T,
     message: string = "Recurso actualizado exitosamente"
@@ -103,9 +77,6 @@ export class ResponseBuilder {
     };
   }
 
-  /**
-   * Construye respuesta para eliminación de recurso
-   */
   static deleted(message: string = "Recurso eliminado exitosamente") {
     return {
       success: true,
@@ -114,16 +85,10 @@ export class ResponseBuilder {
     };
   }
 
-  /**
-   * Construye respuesta sin contenido (204)
-   */
   static noContent() {
     return null;
   }
 
-  /**
-   * Construye metadata de paginación
-   */
   static buildPagination(
     currentPage: number,
     limit: number,
@@ -145,9 +110,6 @@ export class ResponseBuilder {
     return { message, timestamp: datetimeUtc3(date) };
   }
 
-  /**
-   * Construye respuesta con links de paginación (HATEOAS)
-   */
   static paginatedWithLinks<T>(
     data: T[],
     pagination: PaginationDTO,

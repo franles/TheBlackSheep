@@ -1,108 +1,110 @@
 import { NextFunction, Response, Request } from "express";
-import DIContainer from "../core/DIContainer";
 import {
   CreateServiceForTripDTO,
   UpdateServiceForTripDTO,
 } from "../dtos/service.dto";
 import { ResponseBuilder } from "../core/ResponseBuilder";
-// Obtener servicio con dependencias inyectadas
-const servicesService = DIContainer.getServicesService();
+import { ServicesService } from "../services/services.service";
 
-/**
- * Obtener todos los servicios disponibles
- */
-export async function getServices(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  try {
-    const services = await servicesService.getServices();
+export class ServicesController {
+  constructor(private servicesService: ServicesService) {}
 
-    res.status(200).json(ResponseBuilder.success({ data: services }));
-  } catch (error) {
-    next(error);
-  }
-}
+  getServices = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const services = await this.servicesService.getServices();
 
-/**
- * Crear un servicio para un viaje
- */
-export async function createServiceForTrip(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  try {
-    const { valor, pagado_por, viaje_id, servicio_id, moneda } = req.body;
+      res.status(200).json(ResponseBuilder.success({ data: services }));
+    } catch (error) {
+      next(error);
+    }
+  };
 
-    const serviceData: CreateServiceForTripDTO = {
-      viaje_id,
-      servicio_id,
-      valor,
-      pagado_por,
-      moneda,
-    };
+  createServiceForTrip = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const {
+        valor,
+        pagado_por,
+        viaje_id,
+        servicio_id,
+        moneda,
+        valor_tasa_cambio,
+      } = req.body;
 
-    await servicesService.createServiceForTrip(serviceData);
+      const serviceData: CreateServiceForTripDTO = {
+        viaje_id,
+        servicio_id,
+        valor,
+        pagado_por,
+        moneda,
+        valor_tasa_cambio,
+      };
 
-    res
-      .status(201)
-      .json(ResponseBuilder.message("Servicio creado exitosamente"));
-  } catch (error) {
-    next(error);
-  }
-}
+      await this.servicesService.createServiceForTrip(serviceData);
 
-/**
- * Actualizar un servicio de un viaje
- */
-export async function updateServiceForTrip(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  try {
-    const { pagado_por, valor, moneda } = req.body;
-    const { sid: serviceId, tid: tripId } = req.params;
+      res
+        .status(201)
+        .json(ResponseBuilder.message("Servicio creado exitosamente"));
+    } catch (error) {
+      next(error);
+    }
+  };
 
-    const serviceData: UpdateServiceForTripDTO = {
-      valor,
-      pagado_por,
-      moneda,
-    };
+  updateServiceForTrip = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { pagado_por, valor, moneda, valor_tasa_cambio } = req.body;
+      const { sid: serviceId, tid: tripId } = req.params;
 
-    await servicesService.updateServiceForTrip(
-      tripId,
-      Number(serviceId),
-      serviceData
-    );
+      const serviceData: UpdateServiceForTripDTO = {
+        valor,
+        pagado_por,
+        moneda,
+        valor_tasa_cambio,
+      };
 
-    res
-      .status(200)
-      .json(ResponseBuilder.message("Servicio actualizado exitosamente"));
-  } catch (error) {
-    next(error);
-  }
-}
+      await this.servicesService.updateServiceForTrip(
+        tripId,
+        Number(serviceId),
+        serviceData
+      );
 
-/**
- * Eliminar un servicio de un viaje
- */
-export async function deleteServiceForTrip(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  try {
-    const { sid: serviceId, tid: tripId } = req.params;
+      res
+        .status(200)
+        .json(ResponseBuilder.message("Servicio actualizado exitosamente"));
+    } catch (error) {
+      next(error);
+    }
+  };
 
-    await servicesService.deleteServiceForTrip(tripId, Number(serviceId));
+  deleteServiceForTrip = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { sid: serviceId, tid: tripId } = req.params;
 
-    res
-      .status(200)
-      .json(ResponseBuilder.deleted("Servicio eliminado exitosamente"));
-  } catch (error) {
-    next(error);
-  }
+      await this.servicesService.deleteServiceForTrip(
+        tripId,
+        Number(serviceId)
+      );
+
+      res
+        .status(200)
+        .json(ResponseBuilder.deleted("Servicio eliminado exitosamente"));
+    } catch (error) {
+      next(error);
+    }
+  };
 }

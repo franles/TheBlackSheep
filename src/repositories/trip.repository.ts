@@ -9,9 +9,6 @@ import {
 import { QueryExecutor } from "../core/QueryExecutor";
 import { StoredProcedureResultWithTotal } from "../interfaces/repository.interface";
 
-/**
- * Repositorio para operaciones de base de datos relacionadas con viajes
- */
 export class TripRepository implements ITripRepository {
   async getConnection(): Promise<PoolConnection> {
     return db.getConnection();
@@ -31,28 +28,11 @@ export class TripRepository implements ITripRepository {
       { expectResultSets: true },
       conn
     );
-    console.log("resultado", results);
 
-    // Stored procedure retorna múltiples result sets:
-    // results[0] = array de viajes (primer SELECT)
-    // results[1] = array con total (segundo SELECT con COUNT)
-    // results[2] = OkPacket (metadata del SP - ignorar)
-
-    // Extraer datos
     const data = Array.isArray(results[0]) ? results[0] : [];
-    console.log("data", data);
-    // Extraer total del segundo result set
     const totalRow =
       Array.isArray(results[1]) && results[1].length > 0 ? results[1][0] : null;
     const total = totalRow?.total || 0;
-
-    // Log temporal para debugging (remover después)
-    console.log("=== DEBUGGING RESULTS ===");
-    console.log("Total result sets:", results?.length);
-    console.log("Data count:", data.length);
-    console.log("Total items:", total);
-    console.log("First trip:", data[0]?.id);
-    console.log("========================");
 
     return { data, total };
   }

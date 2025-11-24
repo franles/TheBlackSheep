@@ -7,6 +7,12 @@ export interface FinanceSummaryQueryDTO {
   moneda: number | null;
 }
 
+export interface ExchangeRateDTO {
+  id: number;
+  fecha: Date;
+  moneda_id: number;
+  valor_base: number;
+}
 /**
  * DTO de respuesta para resumen financiero
  */

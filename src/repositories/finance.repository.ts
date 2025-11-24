@@ -1,11 +1,10 @@
 import { PoolConnection } from "mysql2/promise";
 import { db } from "../db/db";
 import { QueryExecutor } from "../core/QueryExecutor";
+import { IFinanceRepository } from "../interfaces/finance.repository";
+import { FinanceSummaryResponseDTO } from "../dtos/finance.dto";
 
-/**
- * Repositorio para operaciones de base de datos relacionadas con finanzas
- */
-export class FinanceRepository {
+export class FinanceRepository implements IFinanceRepository {
   async getConnection(): Promise<PoolConnection> {
     return db.getConnection();
   }
@@ -15,7 +14,7 @@ export class FinanceRepository {
     year: number,
     currency: number | null,
     conn?: PoolConnection
-  ): Promise<any[]> {
+  ): Promise<FinanceSummaryResponseDTO> {
     const results = await QueryExecutor.executeStoredProcedure<any>(
       "resumen_financiero",
       [month, year, currency],
@@ -23,34 +22,6 @@ export class FinanceRepository {
       conn
     );
 
-    return results as any[];
-  }
-
-  async createExchangeRate(
-    currency: number,
-    amount: number,
-    conn?: PoolConnection
-  ): Promise<number> {
-    const insertId = await QueryExecutor.executeInsert(
-      "INSERT INTO tipo_cambio(fecha, moneda_id, valor_base) VALUES(NOW(), ?, ?)",
-      [currency, amount],
-      conn
-    );
-
-    return insertId;
-  }
-
-  async updateExchangeRate(
-    id: number,
-    amount: number,
-    conn?: PoolConnection
-  ): Promise<number> {
-    const affectedRows = await QueryExecutor.executeUpdate(
-      "UPDATE tipo_cambio SET valor_base = ? WHERE id = ?",
-      [amount, id],
-      conn
-    );
-
-    return affectedRows;
+    return results as FinanceSummaryResponseDTO;
   }
 }

@@ -13,20 +13,12 @@ export class ServiceRepository implements IServiceRepository {
     return db.getConnection();
   }
 
-  async findAll(conn?: PoolConnection): Promise<ServiceResponseDTO[]> {
-    const shouldReleaseConn = !conn;
-    const connection = conn || (await db.getConnection());
-
-    try {
-      const [rows] = await connection.query<any[]>(
-        "SELECT * FROM servicio_tipo"
-      );
-      return rows;
-    } finally {
-      if (shouldReleaseConn) {
-        connection.release();
-      }
-    }
+  async findAll(conn?: PoolConnection): Promise<void> {
+    await QueryExecutor.executeSelect<ServiceResponseDTO>(
+      "SELECT * FROM servicio_tipo",
+      [],
+      conn
+    );
   }
 
   async createForTrip(
@@ -52,11 +44,12 @@ export class ServiceRepository implements IServiceRepository {
     amount: number,
     payFor: PagadoPorType,
     currency: number,
+    rateChange: number | null,
     conn?: PoolConnection
   ): Promise<void> {
     await QueryExecutor.executeStoredProcedure(
       "actualizar_servicio_viaje",
-      [tripId, serviceId, amount, payFor, currency],
+      [tripId, serviceId, amount, payFor, currency, rateChange],
       {},
       conn
     );

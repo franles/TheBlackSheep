@@ -1,10 +1,5 @@
 import { Router } from "express";
-import {
-  createServiceForTrip,
-  deleteServiceForTrip,
-  getServices,
-  updateServiceForTrip,
-} from "../controllers/services.controller";
+import DIContainer from "../core/DIContainer";
 import { servicesDeleteSchema } from "../middlewares/schemas/services";
 import { validateRequest } from "../middlewares/validateRequest";
 
@@ -62,7 +57,7 @@ const router = Router();
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get("/", getServices);
+router.get("/", DIContainer.getServicesController().getServices);
 
 /**
  * @swagger
@@ -156,12 +151,12 @@ router.get("/", getServices);
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post("/", createServiceForTrip);
+router.post("/", DIContainer.getServicesController().createServiceForTrip);
 
 /**
  * @swagger
  * /api/services/{sid}/trip/{tid}:
- *   put:
+ *   patch:
  *     summary: Actualizar servicio de un viaje
  *     description: Actualiza el valor y/o forma de pago de un servicio asociado a un viaje
  *     tags: [Servicios]
@@ -199,6 +194,7 @@ router.post("/", createServiceForTrip);
  *             valor: 550.00
  *             pagado_por: empresa
  *             moneda: 1
+ *             valor_tasa_cambio: 3500.00
  *     responses:
  *       200:
  *         description: Servicio actualizado exitosamente
@@ -236,7 +232,10 @@ router.post("/", createServiceForTrip);
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.put("/:sid/trip/:tid", updateServiceForTrip);
+router.patch(
+  "/:sid/trip/:tid",
+  DIContainer.getServicesController().updateServiceForTrip
+);
 
 /**
  * @swagger
@@ -282,7 +281,7 @@ router.delete(
   "/:sid/trip/:tid",
   servicesDeleteSchema,
   validateRequest,
-  deleteServiceForTrip
+  DIContainer.getServicesController().deleteServiceForTrip
 );
 
 export default router;

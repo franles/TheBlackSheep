@@ -1,4 +1,4 @@
-import { PagadoPorType } from '../constants/validation';
+import { PagadoPorType } from "../constants/validation";
 
 /**
  * DTO para crear un servicio para un viaje
@@ -9,6 +9,7 @@ export interface CreateServiceForTripDTO {
   valor: number;
   pagado_por: PagadoPorType;
   moneda: number;
+  valor_tasa_cambio?: number;
 }
 
 /**
@@ -18,6 +19,7 @@ export interface UpdateServiceForTripDTO {
   valor?: number;
   pagado_por?: PagadoPorType;
   moneda?: number;
+  valor_tasa_cambio?: number;
 }
 
 /**

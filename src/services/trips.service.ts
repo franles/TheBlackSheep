@@ -3,9 +3,9 @@ import { IServiceRepository } from "../interfaces/service.repository.interface";
 import {
   CreateTripDTO,
   UpdateTripDTO,
-  TripResponseDTO,
   GetTripsQueryDTO,
   PaginatedTripsResponseDTO,
+  TripResponseDTO,
 } from "../dtos/trip.dto";
 import { TransactionManager } from "../core/TransactionManager";
 import { ResponseBuilder } from "../core/ResponseBuilder";
@@ -17,20 +17,13 @@ import {
   validateDateRange,
 } from "../utils/validation";
 import logger from "../config/logger.config";
-/**
- * Servicio de viajes con lógica de negocio
- */
 export class TripService {
   constructor(
     private tripRepository: ITripRepository,
     private serviceRepository: IServiceRepository
   ) {}
 
-  /**
-   * Obtener viajes con paginación y filtros
-   */
   async getTrips(query: GetTripsQueryDTO): Promise<PaginatedTripsResponseDTO> {
-    // Validación y sanitización
     let filter = query.filter ?? null;
     if (filter !== null && typeof filter === "string") {
       filter = sanitizeString(filter, VALIDATION.DB.MAX_STRING_LENGTH);
@@ -40,7 +33,6 @@ export class TripService {
     const page = query.page ?? 1;
     const offset = (page - 1) * limit;
 
-    // Validar límites
     if (limit < 1 || limit > VALIDATION.DB.MAX_STRING_LENGTH) {
       throw ErrorFactory.badRequest("Límite inválido");
     }
@@ -49,7 +41,6 @@ export class TripService {
       throw ErrorFactory.badRequest("Página inválida");
     }
 
-    // Validar mes y año
     const month = query.month ?? null;
     const year = query.year ?? null;
 
@@ -67,7 +58,6 @@ export class TripService {
 
     logger.info("Fetching trips", { filter, limit, offset, month, year });
 
-    // Obtener datos
     const { data, total } = await this.tripRepository.findAll(
       filter,
       limit,
@@ -76,7 +66,6 @@ export class TripService {
       year
     );
 
-    // Construir respuesta paginada
     const pagination = ResponseBuilder.buildPagination(page, total, limit);
     console.log(data);
     return {
@@ -85,9 +74,6 @@ export class TripService {
     };
   }
 
-  /**
-   * Obtener un viaje por ID
-   */
   async getTrip(id: string): Promise<TripResponseDTO> {
     logger.info("Fetching trip", { tripId: id });
 
@@ -100,11 +86,7 @@ export class TripService {
     return trip;
   }
 
-  /**
-   * Crear un nuevo viaje con servicios
-   */
   async createTrip(data: CreateTripDTO): Promise<{ id: string }> {
-    // Validar fechas
     this.validateTripDates(data.fecha_ida, data.fecha_vuelta);
 
     logger.info("Creating trip", {
@@ -112,9 +94,7 @@ export class TripService {
       servicesCount: data.servicios.length,
     });
 
-    // Ejecutar en transacción
     const tripId = await TransactionManager.execute(async (conn) => {
-      // Crear viaje
       const id = await this.tripRepository.create(
         {
           apellido: data.apellido,
@@ -127,7 +107,6 @@ export class TripService {
         conn
       );
 
-      // Crear servicios asociados
       for (const service of data.servicios) {
         await this.serviceRepository.createForTrip(
           id,
@@ -147,20 +126,14 @@ export class TripService {
     return { id: tripId };
   }
 
-  /**
-   * Actualizar un viaje existente
-   */
   async updateTrip(id: string, data: UpdateTripDTO): Promise<{ id: string }> {
-    // Validar fechas si están presentes
     if (data.fecha_ida && data.fecha_vuelta) {
       this.validateTripDates(data.fecha_ida, data.fecha_vuelta);
     }
 
     logger.info("Updating trip", { tripId: id });
 
-    // Ejecutar en transacción
     const tripId = await TransactionManager.execute(async (conn) => {
-      // Actualizar viaje
       const updatedId = await this.tripRepository.update(
         id,
         {
@@ -174,7 +147,6 @@ export class TripService {
         conn
       );
 
-      // Actualizar servicios si están presentes
       if (data.servicios && data.servicios.length > 0) {
         for (const service of data.servicios) {
           await this.serviceRepository.updateForTrip(
@@ -183,6 +155,7 @@ export class TripService {
             service.valor,
             service.pagado_por,
             service.moneda,
+            service.valor_tasa_cambio,
             conn
           );
         }
@@ -195,9 +168,6 @@ export class TripService {
     return { id: tripId };
   }
 
-  /**
-   * Eliminar un viaje
-   */
   async deleteTrip(id: string): Promise<{ id: string }> {
     logger.info("Deleting trip", { tripId: id });
 
@@ -209,9 +179,6 @@ export class TripService {
     return { id: deletedId };
   }
 
-  /**
-   * Validar fechas de viaje
-   */
   private validateTripDates(startDate: Date, endDate: Date): void {
     if (!validateDate(startDate)) {
       throw ErrorFactory.badRequest("Fecha de ida inválida");

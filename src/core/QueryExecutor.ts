@@ -1,8 +1,9 @@
-import { PoolConnection, RowDataPacket } from "mysql2/promise";
+import { PoolConnection, RowDataPacket, ResultSetHeader } from "mysql2/promise";
 import { db } from "../db/db";
 import { AppError } from "../errors/customErrors";
 import { ErrorFactory } from "../errors/errorFactory";
 import logger from "../config/logger.config";
+
 /**
  * Opciones para ejecutar stored procedures
  */
@@ -18,23 +19,25 @@ interface StoredProcedureOptions {
  */
 export class QueryExecutor {
   /**
-   * Ejecuta una query con manejo de errores automático
+   * Ejecuta una query con manejo de errores automático y gestión de conexiones
    */
   static async executeQuery<T>(
     queryFn: (conn: PoolConnection) => Promise<T>,
-    errorMessage: string = "Error en la consulta"
+    errorMessage: string = "Error en la consulta",
+    conn?: PoolConnection
   ): Promise<T> {
-    const conn = await db.getConnection();
+    const shouldReleaseConn = !conn;
+    const connection = conn || (await db.getConnection());
     const startTime = Date.now();
 
     try {
-      const result = await queryFn(conn);
+      const result = await queryFn(connection);
       const duration = Date.now() - startTime;
 
-      logger.db("Query executed", duration, {
-        errorMessage,
-        success: true,
-      });
+      // El logging de éxito se delega a las funciones específicas si es necesario,
+      // o se podría agregar un log genérico aquí si se desea.
+      // Por ahora mantenemos el log genérico solo si no hubo error.
+      // Sin embargo, para evitar ruido, asumimos que las funciones específicas loguean sus detalles.
 
       return result;
     } catch (error) {
@@ -58,7 +61,9 @@ export class QueryExecutor {
 
       throw ErrorFactory.internal(errorMessage);
     } finally {
-      conn.release();
+      if (shouldReleaseConn) {
+        connection.release();
+      }
     }
   }
 
@@ -71,68 +76,45 @@ export class QueryExecutor {
     options: StoredProcedureOptions = {},
     conn?: PoolConnection
   ): Promise<T | T[] | any[]> {
-    const shouldReleaseConn = !conn;
-    const connection = conn || (await db.getConnection());
-    const startTime = Date.now();
+    return this.executeQuery(
+      async (connection) => {
+        // Construir query con parámetros
+        const placeholders = params.map(() => "?").join(",");
+        const query = `CALL ${procedureName}(${placeholders})`;
 
-    try {
-      // Construir query con parámetros
-      const placeholders = params.map(() => "?").join(",");
-      const query = `CALL ${procedureName}(${placeholders})`;
-
-      logger.dev("Executing stored procedure", {
-        procedure: procedureName,
-        paramsCount: params.length,
-      });
-
-      const [results] = await connection.query<T[][]>(query, params);
-      const duration = Date.now() - startTime;
-
-      logger.db(query, duration, {
-        procedure: procedureName,
-        resultCount: results[0]?.length || 0,
-      });
-
-      if (options.expectResultSets) {
-        return results;
-      }
-      // Validar resultados según opciones
-      if (options.expectSingleRow) {
-        if (!results[0]?.[0] && !options.allowEmpty) {
-          throw ErrorFactory.notFound("No se encontraron resultados");
-        }
-        return results[0]?.[0] as T;
-      }
-      if (options.expectMultipleRows) {
-        return results[0] as T[];
-      }
-      // Por defecto retornar el primer result set
-      return results[0] as T[];
-    } catch (error) {
-      const duration = Date.now() - startTime;
-
-      if (error instanceof AppError) {
-        logger.warn("Stored procedure error (AppError)", {
+        logger.dev("Executing stored procedure", {
           procedure: procedureName,
-          error: error.message,
-          duration: `${duration}ms`,
+          paramsCount: params.length,
         });
-        throw error;
-      }
 
-      logger.error("Stored procedure error (Unexpected)", {
-        procedure: procedureName,
-        error: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
-        duration: `${duration}ms`,
-      });
+        const startTime = Date.now();
+        const [results] = await connection.query<T[][]>(query, params);
+        const duration = Date.now() - startTime;
 
-      throw ErrorFactory.internal(`Error ejecutando ${procedureName}`);
-    } finally {
-      if (shouldReleaseConn) {
-        connection.release();
-      }
-    }
+        logger.db(query, duration, {
+          procedure: procedureName,
+          resultCount: results[0]?.length || 0,
+        });
+
+        if (options.expectResultSets) {
+          return results;
+        }
+        // Validar resultados según opciones
+        if (options.expectSingleRow) {
+          if (!results[0]?.[0] && !options.allowEmpty) {
+            throw ErrorFactory.notFound("No se encontraron resultados");
+          }
+          return results[0]?.[0] as T;
+        }
+        if (options.expectMultipleRows) {
+          return results[0] as T[];
+        }
+        // Por defecto retornar el primer result set
+        return results[0] as T[];
+      },
+      `Error ejecutando ${procedureName}`,
+      conn
+    );
   }
 
   /**
@@ -143,34 +125,21 @@ export class QueryExecutor {
     params: any[],
     conn?: PoolConnection
   ): Promise<number> {
-    const shouldReleaseConn = !conn;
-    const connection = conn || (await db.getConnection());
-    const startTime = Date.now();
+    return this.executeQuery(
+      async (connection) => {
+        const startTime = Date.now();
+        const [result] = await connection.query<ResultSetHeader>(query, params);
+        const duration = Date.now() - startTime;
 
-    try {
-      const [result] = await connection.query<any>(query, params);
-      const duration = Date.now() - startTime;
+        logger.db(query, duration, {
+          insertId: result.insertId,
+        });
 
-      logger.db(query, duration, {
-        insertId: result.insertId,
-      });
-
-      return result.insertId;
-    } catch (error) {
-      const duration = Date.now() - startTime;
-
-      logger.error("Insert error", {
-        query,
-        error: error instanceof Error ? error.message : "Unknown error",
-        duration: `${duration}ms`,
-      });
-
-      throw ErrorFactory.internal("Error al insertar datos");
-    } finally {
-      if (shouldReleaseConn) {
-        connection.release();
-      }
-    }
+        return result.insertId;
+      },
+      "Error al insertar datos",
+      conn
+    );
   }
 
   /**
@@ -181,34 +150,21 @@ export class QueryExecutor {
     params: any[],
     conn?: PoolConnection
   ): Promise<number> {
-    const shouldReleaseConn = !conn;
-    const connection = conn || (await db.getConnection());
-    const startTime = Date.now();
+    return this.executeQuery(
+      async (connection) => {
+        const startTime = Date.now();
+        const [result] = await connection.query<ResultSetHeader>(query, params);
+        const duration = Date.now() - startTime;
 
-    try {
-      const [result] = await connection.query<any>(query, params);
-      const duration = Date.now() - startTime;
+        logger.db(query, duration, {
+          affectedRows: result.affectedRows,
+        });
 
-      logger.db(query, duration, {
-        affectedRows: result.affectedRows,
-      });
-
-      return result.affectedRows;
-    } catch (error) {
-      const duration = Date.now() - startTime;
-
-      logger.error("Update error", {
-        query,
-        error: error instanceof Error ? error.message : "Unknown error",
-        duration: `${duration}ms`,
-      });
-
-      throw ErrorFactory.internal("Error al actualizar datos");
-    } finally {
-      if (shouldReleaseConn) {
-        connection.release();
-      }
-    }
+        return result.affectedRows;
+      },
+      "Error al actualizar datos",
+      conn
+    );
   }
 
   /**
@@ -219,33 +175,57 @@ export class QueryExecutor {
     params: any[],
     conn?: PoolConnection
   ): Promise<number> {
-    const shouldReleaseConn = !conn;
-    const connection = conn || (await db.getConnection());
-    const startTime = Date.now();
+    return this.executeQuery(
+      async (connection) => {
+        const startTime = Date.now();
+        const [result] = await connection.query<ResultSetHeader>(query, params);
+        const duration = Date.now() - startTime;
 
-    try {
-      const [result] = await connection.query<any>(query, params);
-      const duration = Date.now() - startTime;
+        logger.db(query, duration, {
+          affectedRows: result.affectedRows,
+        });
 
-      logger.db(query, duration, {
-        affectedRows: result.affectedRows,
-      });
+        return result.affectedRows;
+      },
+      "Error al eliminar datos",
+      conn
+    );
+  }
 
-      return result.affectedRows;
-    } catch (error) {
-      const duration = Date.now() - startTime;
+  /**
+   * Ejecuta un SELECT y retorna las filas encontradas
+   */
+  static async executeSelect<T>(
+    query: string,
+    params: any[],
+    conn?: PoolConnection
+  ): Promise<T[]> {
+    return this.executeQuery(
+      async (connection) => {
+        const startTime = Date.now();
+        const [rows] = await connection.query<any>(query, params);
+        const duration = Date.now() - startTime;
 
-      logger.error("Delete error", {
-        query,
-        error: error instanceof Error ? error.message : "Unknown error",
-        duration: `${duration}ms`,
-      });
+        logger.db(query, duration, {
+          resultCount: rows.length,
+        });
 
-      throw ErrorFactory.internal("Error al eliminar datos");
-    } finally {
-      if (shouldReleaseConn) {
-        connection.release();
-      }
-    }
+        return rows as T[];
+      },
+      "Error al consultar datos",
+      conn
+    );
+  }
+
+  /**
+   * Ejecuta un SELECT y retorna una única fila
+   */
+  static async executeSelectOne<T>(
+    query: string,
+    params: any[],
+    conn?: PoolConnection
+  ): Promise<T | null> {
+    const rows = await this.executeSelect<T>(query, params, conn);
+    return rows[0] || null;
   }
 }

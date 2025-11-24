@@ -1,8 +1,5 @@
 import { PagadoPorType, DestinoType } from "../constants/validation";
 
-/**
- * DTO para crear un nuevo viaje
- */
 export interface CreateTripDTO {
   apellido: string;
   valor_total: number;
@@ -13,9 +10,6 @@ export interface CreateTripDTO {
   servicios: CreateServiceDTO[];
 }
 
-/**
- * DTO para actualizar un viaje existente
- */
 export interface UpdateTripDTO {
   apellido?: string;
   valor_total?: number;
@@ -26,9 +20,6 @@ export interface UpdateTripDTO {
   servicios?: UpdateServiceInTripDTO[];
 }
 
-/**
- * DTO para crear un servicio dentro de un viaje
- */
 export interface CreateServiceDTO {
   id: number;
   valor: number;
@@ -36,19 +27,14 @@ export interface CreateServiceDTO {
   moneda: number;
 }
 
-/**
- * DTO para actualizar un servicio dentro de un viaje
- */
 export interface UpdateServiceInTripDTO {
   id: number;
   valor: number;
   pagado_por: PagadoPorType;
   moneda: number;
+  valor_tasa_cambio: number | null;
 }
 
-/**
- * DTO de respuesta para viaje
- */
 export interface TripResponseDTO {
   id: string;
   estado: "pendiente" | "finalizado";
@@ -61,21 +47,18 @@ export interface TripResponseDTO {
   ganancia: number;
   costo: number;
   servicios: ServiceInTripDTO[];
+  valor_tasa_cambio: number;
 }
 
-/**
- * DTO para servicio dentro de un viaje en la respuesta
- */
 export interface ServiceInTripDTO {
   id: number;
   valor: number;
   nombre: string;
   pagado_por: PagadoPorType;
+  valor_tasa_cambio: number;
+  moneda: string;
 }
 
-/**
- * DTO para query de viajes
- */
 export interface GetTripsQueryDTO {
   filter?: string | number;
   limit?: number;
@@ -84,17 +67,11 @@ export interface GetTripsQueryDTO {
   year?: number;
 }
 
-/**
- * DTO de respuesta paginada para viajes
- */
 export interface PaginatedTripsResponseDTO {
   data: TripResponseDTO[];
   pagination: PaginationMetaDTO;
 }
 
-/**
- * DTO de metadata de paginación
- */
 export interface PaginationMetaDTO {
   currentPage: number;
   totalItems: number;

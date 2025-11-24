@@ -1,17 +1,7 @@
 import { PoolConnection } from "mysql2/promise";
 import { db } from "../db/db";
 import logger from "../config/logger.config";
-/**
- * Transaction Manager para manejar transacciones de base de datos de forma segura
- */
 export class TransactionManager {
-  /**
-   * Ejecuta una operación dentro de una transacción
-   * Si la operación falla, hace rollback automáticamente
-   *
-   * @param callback - Función que recibe la conexión y ejecuta operaciones
-   * @returns El resultado de la operación
-   */
   static async execute<T>(
     callback: (conn: PoolConnection) => Promise<T>
   ): Promise<T> {
@@ -19,21 +9,16 @@ export class TransactionManager {
     const startTime = Date.now();
 
     try {
-      // Iniciar transacción
       await conn.beginTransaction();
       logger.dev("Transaction started");
 
-      // Ejecutar operaciones
       const result = await callback(conn);
-
-      // Commit si todo salió bien
       await conn.commit();
       const duration = Date.now() - startTime;
       logger.dev("Transaction committed", { duration: `${duration}ms` });
 
       return result;
     } catch (error) {
-      // Rollback en caso de error
       await conn.rollback();
       const duration = Date.now() - startTime;
 
@@ -44,7 +29,6 @@ export class TransactionManager {
 
       throw error;
     } finally {
-      // Siempre liberar la conexión
       conn.release();
     }
   }

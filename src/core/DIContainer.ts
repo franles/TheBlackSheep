@@ -6,27 +6,25 @@ import { TripService } from "../services/trips.service";
 import { ServicesService } from "../services/services.service";
 import { UserService } from "../services/users.service";
 import { FinanceService } from "../services/finance.service";
+import { FinanceController } from "../controllers/finance.controller";
+import { ServicesController } from "../controllers/services.controller";
+import { TripsController } from "../controllers/trips.controller";
 
-/**
- * Contenedor de inyección de dependencias
- * Maneja la creación e inyección de todas las dependencias del sistema
- */
 class DIContainer {
-  // Repositorios (Singleton)
   private static tripRepository: TripRepository;
   private static serviceRepository: ServiceRepository;
   private static userRepository: UserRepository;
   private static financeRepository: FinanceRepository;
 
-  // Servicios (Singleton)
   private static tripService: TripService;
   private static servicesService: ServicesService;
   private static userService: UserService;
   private static financeService: FinanceService;
 
-  /**
-   * Obtener instancia del repositorio de viajes
-   */
+  private static financeController: FinanceController;
+  private static servicesController: ServicesController;
+  private static tripsController: TripsController;
+
   static getTripRepository(): TripRepository {
     if (!this.tripRepository) {
       this.tripRepository = new TripRepository();
@@ -34,9 +32,6 @@ class DIContainer {
     return this.tripRepository;
   }
 
-  /**
-   * Obtener instancia del repositorio de servicios
-   */
   static getServiceRepository(): ServiceRepository {
     if (!this.serviceRepository) {
       this.serviceRepository = new ServiceRepository();
@@ -44,9 +39,6 @@ class DIContainer {
     return this.serviceRepository;
   }
 
-  /**
-   * Obtener instancia del repositorio de usuarios
-   */
   static getUserRepository(): UserRepository {
     if (!this.userRepository) {
       this.userRepository = new UserRepository();
@@ -54,9 +46,6 @@ class DIContainer {
     return this.userRepository;
   }
 
-  /**
-   * Obtener instancia del repositorio de finanzas
-   */
   static getFinanceRepository(): FinanceRepository {
     if (!this.financeRepository) {
       this.financeRepository = new FinanceRepository();
@@ -64,9 +53,6 @@ class DIContainer {
     return this.financeRepository;
   }
 
-  /**
-   * Obtener instancia del servicio de viajes con dependencias inyectadas
-   */
   static getTripService(): TripService {
     if (!this.tripService) {
       this.tripService = new TripService(
@@ -77,9 +63,6 @@ class DIContainer {
     return this.tripService;
   }
 
-  /**
-   * Obtener instancia del servicio de servicios con dependencias inyectadas
-   */
   static getServicesService(): ServicesService {
     if (!this.servicesService) {
       this.servicesService = new ServicesService(this.getServiceRepository());
@@ -87,9 +70,6 @@ class DIContainer {
     return this.servicesService;
   }
 
-  /**
-   * Obtener instancia del servicio de usuarios con dependencias inyectadas
-   */
   static getUserService(): UserService {
     if (!this.userService) {
       this.userService = new UserService(this.getUserRepository());
@@ -107,9 +87,29 @@ class DIContainer {
     return this.financeService;
   }
 
-  /**
-   * Resetear todas las instancias (útil para testing)
-   */
+  static getFinanceController(): FinanceController {
+    if (!this.financeController) {
+      this.financeController = new FinanceController(this.getFinanceService());
+    }
+    return this.financeController;
+  }
+
+  static getServicesController(): ServicesController {
+    if (!this.servicesController) {
+      this.servicesController = new ServicesController(
+        this.getServicesService()
+      );
+    }
+    return this.servicesController;
+  }
+
+  static getTripsController(): TripsController {
+    if (!this.tripsController) {
+      this.tripsController = new TripsController(this.getTripService());
+    }
+    return this.tripsController;
+  }
+
   static reset(): void {
     this.tripRepository = null as any;
     this.serviceRepository = null as any;
