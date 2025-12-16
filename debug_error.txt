@@ -1,0 +1,347 @@
+Error: DEBUG_RESULTS_PAYLOAD:Array of length 3. Types: Array(10), Array(1), object
+Full Dump: [
+  [
+    {
+      "id": "TBS145",
+      "fecha": "2025-12-15T17:42:08.000Z",
+      "estado": "pendiente",
+      "apellido": "uuuuuuuuuu",
+      "valor_total": "777.00",
+      "fecha_ida": "2025-12-23T03:00:00.000Z",
+      "fecha_vuelta": "2025-12-29T03:00:00.000Z",
+      "moneda": "ars",
+      "ganancia": "777.00",
+      "costo": "0.00",
+      "destino": "nacional",
+      "valor_tasa_cambio": null,
+      "servicios": [
+        {
+          "id": 1,
+          "valor": 0,
+          "moneda": "ars",
+          "nombre": "hospedaje",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 3,
+          "valor": 0,
+          "moneda": "ars",
+          "nombre": "excursiones",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 5,
+          "valor": 0,
+          "moneda": "ars",
+          "nombre": "alquiler de vehiculo",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        }
+      ]
+    },
+    {
+      "id": "TBS144",
+      "fecha": "2025-12-15T17:30:08.000Z",
+      "estado": "pendiente",
+      "apellido": "hhhhhhhhhhhhhhhh",
+      "valor_total": "88.00",
+      "fecha_ida": "2025-12-16T03:00:00.000Z",
+      "fecha_vuelta": "2025-12-29T03:00:00.000Z",
+      "moneda": "usd",
+      "ganancia": "88.00",
+      "costo": "0.00",
+      "destino": "internacional",
+      "valor_tasa_cambio": "130.00",
+      "servicios": [
+        {
+          "id": 3,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "excursiones",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": 130
+        },
+        {
+          "id": 5,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "alquiler de vehiculo",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": 130
+        },
+        {
+          "id": 6,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "asistencia al viajero",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": 130
+        }
+      ]
+    },
+    {
+      "id": "TBS143",
+      "fecha": "2025-12-15T17:05:49.000Z",
+      "estado": "pendiente",
+      "apellido": "leskevi",
+      "valor_total": "333.00",
+      "fecha_ida": "2025-12-16T03:00:00.000Z",
+      "fecha_vuelta": "2025-12-28T03:00:00.000Z",
+      "moneda": "usd",
+      "ganancia": "333.00",
+      "costo": "0.00",
+      "destino": "nacional",
+      "valor_tasa_cambio": "1200.00",
+      "servicios": [
+        {
+          "id": 2,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "equipaje",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": 1200
+        },
+        {
+          "id": 4,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "alquiler de ropa",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": 1200
+        },
+        {
+          "id": 7,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "tickets aereos",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": 1200
+        }
+      ]
+    },
+    {
+      "id": "TBS142",
+      "fecha": "2025-11-24T13:17:20.000Z",
+      "estado": "pendiente",
+      "apellido": "wweqe",
+      "valor_total": "10000.00",
+      "fecha_ida": "2025-11-28T03:00:00.000Z",
+      "fecha_vuelta": "2025-12-04T03:00:00.000Z",
+      "moneda": "usd",
+      "ganancia": "10000.00",
+      "costo": "0.00",
+      "destino": "internacional",
+      "valor_tasa_cambio": "1222.00",
+      "servicios": []
+    },
+    {
+      "id": "TBS141",
+      "fecha": "2025-11-24T13:10:49.000Z",
+      "estado": "pendiente",
+      "apellido": "dauberte",
+      "valor_total": "20000.00",
+      "fecha_ida": "2025-12-19T03:00:00.000Z",
+      "fecha_vuelta": "2025-12-21T03:00:00.000Z",
+      "moneda": "usd",
+      "ganancia": "0.00",
+      "costo": "0.00",
+      "destino": "internacional",
+      "valor_tasa_cambio": "1400.00",
+      "servicios": []
+    },
+    {
+      "id": "TBS139",
+      "fecha": "2025-11-24T13:04:31.000Z",
+      "estado": "pendiente",
+      "apellido": "marzano",
+      "valor_total": "20000.00",
+      "fecha_ida": "2025-11-24T03:00:00.000Z",
+      "fecha_vuelta": "2025-12-02T03:00:00.000Z",
+      "moneda": "usd",
+      "ganancia": "0.00",
+      "costo": "0.00",
+      "destino": "internacional",
+      "valor_tasa_cambio": null,
+      "servicios": []
+    },
+    {
+      "id": "TBS135",
+      "fecha": "2025-11-18T16:09:43.000Z",
+      "estado": "pendiente",
+      "apellido": "dauberte",
+      "valor_total": "20000.00",
+      "fecha_ida": "2025-08-09T03:00:00.000Z",
+      "fecha_vuelta": "2025-10-11T03:00:00.000Z",
+      "moneda": "ars",
+      "ganancia": "20000.00",
+      "costo": "0.00",
+      "destino": "internacional",
+      "valor_tasa_cambio": null,
+      "servicios": [
+        {
+          "id": 4,
+          "valor": 0,
+          "moneda": "ars",
+          "nombre": "alquiler de ropa",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        }
+      ]
+    },
+    {
+      "id": "TBS134",
+      "fecha": "2025-11-13T21:18:37.000Z",
+      "estado": "pendiente",
+      "apellido": "lopez",
+      "valor_total": "1000000.00",
+      "fecha_ida": "2025-12-24T03:00:00.000Z",
+      "fecha_vuelta": "2026-02-20T03:00:00.000Z",
+      "moneda": "usd",
+      "ganancia": "1000000.00",
+      "costo": "0.00",
+      "destino": "nacional",
+      "valor_tasa_cambio": null,
+      "servicios": [
+        {
+          "id": 1,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "hospedaje",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 2,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "equipaje",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 3,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "excursiones",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 4,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "alquiler de ropa",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 5,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "alquiler de vehiculo",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 6,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "asistencia al viajero",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 7,
+          "valor": 0,
+          "moneda": "usd",
+          "nombre": "tickets aereos",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        }
+      ]
+    },
+    {
+      "id": "TBS133",
+      "fecha": "2025-11-13T21:15:25.000Z",
+      "estado": "pendiente",
+      "apellido": "dauberte",
+      "valor_total": "20000.00",
+      "fecha_ida": "2025-12-19T03:00:00.000Z",
+      "fecha_vuelta": "2025-12-22T03:00:00.000Z",
+      "moneda": "ars",
+      "ganancia": "20000.00",
+      "costo": "0.00",
+      "destino": "internacional",
+      "valor_tasa_cambio": null,
+      "servicios": [
+        {
+          "id": 1,
+          "valor": 0,
+          "moneda": null,
+          "nombre": "hospedaje",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 5,
+          "valor": 0,
+          "moneda": "ars",
+          "nombre": "alquiler de vehiculo",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        },
+        {
+          "id": 6,
+          "valor": 0,
+          "moneda": "ars",
+          "nombre": "asistencia al viajero",
+          "pagado_por": "pendiente",
+          "valor_tasa_cambio": null
+        }
+      ]
+    },
+    {
+      "id": "TBS132",
+      "fecha": "2025-11-13T21:04:12.000Z",
+      "estado": "finalizado",
+      "apellido": "probaanndo",
+      "valor_total": "23000.00",
+      "fecha_ida": "2025-09-13T03:00:00.000Z",
+      "fecha_vuelta": "2025-09-19T03:00:00.000Z",
+      "moneda": "usd",
+      "ganancia": "23000.00",
+      "costo": "0.00",
+      "destino": "internacional",
+      "valor_tasa_cambio": null,
+      "servicios": [
+        {
+          "id": 1,
+          "valor": 1000,
+          "moneda": "ars",
+          "nombre": "hospedaje",
+          "pagado_por": "pablo",
+          "valor_tasa_cambio": null
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "total": 17
+    }
+  ],
+  {
+    "fieldCount": 0,
+    "affectedRows": 0,
+    "insertId": 0,
+    "info": "",
+    "serverStatus": 34,
+    "warningStatus": 0,
+    "changedRows": 0
+  }
+]
+    at TripRepository.findAll (C:\Users\Fran\Desktop\ProyectoTBS\TheBlackSheep\src\repositories\trip.repository.ts:47:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async testPagination (C:\Users\Fran\Desktop\ProyectoTBS\TheBlackSheep\debug_pagination.ts:17:13)

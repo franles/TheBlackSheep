@@ -85,7 +85,7 @@ app.use(
 
 export const limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 200,
+  max: 1000,
   message: "Demasiadas peticiones, intenta más tarde",
   standardHeaders: true,
   legacyHeaders: false,

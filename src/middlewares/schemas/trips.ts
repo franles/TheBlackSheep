@@ -39,6 +39,15 @@ const tripPostSchemaValidator: Schema = {
     },
     trim: true,
   },
+  valor_tasa_cambio: {
+    in: ["body"],
+    optional: { options: { nullable: true } },
+    isFloat: {
+      errorMessage: "El valor de la tasa de cambio debe ser un número decimal",
+      bail: true,
+    },
+    toFloat: true,
+  },
 };
 
 const tripPatchSchemaValidator: Schema = {};

@@ -22,6 +22,7 @@ export class TripRepository implements ITripRepository {
     year: number | null,
     conn?: PoolConnection
   ): Promise<StoredProcedureResultWithTotal<TripResponseDTO>> {
+    // Execute SP
     const results = await QueryExecutor.executeStoredProcedure<any>(
       "obtener_viajes",
       [filter, limit, offset, month, year],
@@ -29,10 +30,26 @@ export class TripRepository implements ITripRepository {
       conn
     );
 
-    const data = Array.isArray(results[0]) ? results[0] : [];
-    const totalRow =
-      Array.isArray(results[1]) && results[1].length > 0 ? results[1][0] : null;
-    const total = totalRow?.total || 0;
+    // Default data extraction
+    const data: TripResponseDTO[] = Array.isArray(results[0]) ? results[0] : [];
+
+    // Total count extraction
+    let total = 0;
+    if (Array.isArray(results)) {
+      // Look for the array that contains the total count
+      const totalResult = results.find((r) =>
+        Array.isArray(r) &&
+        r.length > 0 && // sometimes count row is 1, but let's be flexible
+        r[0] &&
+        typeof r[0] === 'object' &&
+        'total' in r[0] &&
+        r !== data // Ensure we don't pick the data array if it accidentally has a 'total' field (unlikely)
+      );
+
+      if (totalResult) {
+        total = totalResult[0].total;
+      }
+    }
 
     return { data, total };
   }
@@ -64,6 +81,7 @@ export class TripRepository implements ITripRepository {
         data.fecha_ida,
         data.fecha_vuelta,
         data.moneda,
+        data.valor_tasa_cambio ?? null,
       ],
       { expectSingleRow: true },
       conn
@@ -87,6 +105,7 @@ export class TripRepository implements ITripRepository {
         data.fecha_ida ?? null,
         data.fecha_vuelta ?? null,
         data.moneda ?? null,
+        data.valor_tasa_cambio ?? null,
       ],
       { expectSingleRow: true },
       conn

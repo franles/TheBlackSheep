@@ -7,6 +7,7 @@ export interface CreateTripDTO {
   fecha_ida: Date;
   fecha_vuelta: Date;
   moneda: number;
+  valor_tasa_cambio?: number | null;
   servicios: CreateServiceDTO[];
 }
 
@@ -17,6 +18,7 @@ export interface UpdateTripDTO {
   fecha_ida?: Date;
   fecha_vuelta?: Date;
   moneda?: number;
+  valor_tasa_cambio?: number | null;
   servicios?: UpdateServiceInTripDTO[];
 }
 
@@ -25,6 +27,7 @@ export interface CreateServiceDTO {
   valor: number;
   pagado_por: PagadoPorType;
   moneda: number;
+  valor_tasa_cambio?: number | null;
 }
 
 export interface UpdateServiceInTripDTO {

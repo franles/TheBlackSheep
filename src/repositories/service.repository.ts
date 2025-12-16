@@ -13,8 +13,8 @@ export class ServiceRepository implements IServiceRepository {
     return db.getConnection();
   }
 
-  async findAll(conn?: PoolConnection): Promise<void> {
-    await QueryExecutor.executeSelect<ServiceResponseDTO>(
+  async findAll(conn?: PoolConnection): Promise<ServiceResponseDTO[]> {
+    return await QueryExecutor.executeSelect<ServiceResponseDTO>(
       "SELECT * FROM servicio_tipo",
       [],
       conn

@@ -21,7 +21,7 @@ export class TripService {
   constructor(
     private tripRepository: ITripRepository,
     private serviceRepository: IServiceRepository
-  ) {}
+  ) { }
 
   async getTrips(query: GetTripsQueryDTO): Promise<PaginatedTripsResponseDTO> {
     let filter = query.filter ?? null;
@@ -66,7 +66,7 @@ export class TripService {
       year
     );
 
-    const pagination = ResponseBuilder.buildPagination(page, total, limit);
+    const pagination = ResponseBuilder.buildPagination(page, limit, total);
     console.log(data);
     return {
       data,
@@ -103,6 +103,7 @@ export class TripService {
           fecha_ida: data.fecha_ida,
           fecha_vuelta: data.fecha_vuelta,
           moneda: data.moneda,
+          valor_tasa_cambio: data.valor_tasa_cambio,
         },
         conn
       );
@@ -114,7 +115,7 @@ export class TripService {
           service.valor,
           service.pagado_por,
           service.moneda,
-          null,
+          service.valor_tasa_cambio ?? null,
           conn
         );
       }
@@ -143,6 +144,7 @@ export class TripService {
           fecha_ida: data.fecha_ida,
           fecha_vuelta: data.fecha_vuelta,
           moneda: data.moneda,
+          valor_tasa_cambio: data.valor_tasa_cambio,
         },
         conn
       );
