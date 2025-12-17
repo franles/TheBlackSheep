@@ -115,7 +115,7 @@ export class TripService {
           service.valor,
           service.pagado_por,
           service.moneda,
-          service.valor_tasa_cambio ?? null,
+          service.cotizacion ?? null,
           conn
         );
       }
@@ -157,7 +157,7 @@ export class TripService {
             service.valor,
             service.pagado_por,
             service.moneda,
-            service.valor_tasa_cambio,
+            service.cotizacion,
             conn
           );
         }

@@ -28,7 +28,7 @@ export class ServicesService {
         data.valor,
         data.pagado_por,
         data.moneda,
-        data.valor_tasa_cambio || null,
+        data.cotizacion || null,
         conn
       );
     });
@@ -53,7 +53,7 @@ export class ServicesService {
         data.valor!,
         data.pagado_por!,
         data.moneda!,
-        data.valor_tasa_cambio || null,
+        data.cotizacion || null,
         conn
       );
     });

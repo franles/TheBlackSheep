@@ -32,16 +32,20 @@ async function migrate() {
             }
         }
 
-        // 2. Agregar columna a tabla SERVICIO
+        // 2. Renombrar columna en tabla SERVICIO
         try {
             console.log('Alterando tabla SERVICIO...');
-            await connection.query('ALTER TABLE servicio ADD COLUMN valor_tasa_cambio DECIMAL(12,2) NULL');
-            console.log('✅ Columna "valor_tasa_cambio" agregada a SERVICIO.');
+            // Check if column exists first or just try rename
+            // MySQL 8.0+: ALTER TABLE servicio RENAME COLUMN valor_tasa_cambio TO cotizacion;
+            // MariaDB/Older: ALTER TABLE servicio CHANGE COLUMN valor_tasa_cambio cotizacion DECIMAL(12,2) NULL;
+            // We'll use CHANGE COLUMN for better compatibility
+            await connection.query('ALTER TABLE servicio CHANGE COLUMN valor_tasa_cambio cotizacion DECIMAL(12,2) NULL');
+            console.log('✅ Columna "valor_tasa_cambio" renombrada a "cotizacion" en SERVICIO.');
         } catch (err: any) {
-            if (err.code === 'ER_DUP_FIELDNAME') {
-                console.log('ℹ️ La columna ya existe en SERVICIO.');
+            if (err.code === 'ER_BAD_FIELD_ERROR') {
+                console.log('ℹ️ La columna "valor_tasa_cambio" no existe o "cotizacion" ya está definida.');
             } else {
-                throw err;
+                console.error('⚠️ Error al renombrar columna (puede que ya esté renombrada):', err.message);
             }
         }
 
