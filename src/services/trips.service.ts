@@ -103,7 +103,7 @@ export class TripService {
           fecha_ida: data.fecha_ida,
           fecha_vuelta: data.fecha_vuelta,
           moneda: data.moneda,
-          valor_tasa_cambio: data.valor_tasa_cambio,
+          cotizacion: data.cotizacion,
         },
         conn
       );
@@ -144,7 +144,7 @@ export class TripService {
           fecha_ida: data.fecha_ida,
           fecha_vuelta: data.fecha_vuelta,
           moneda: data.moneda,
-          valor_tasa_cambio: data.valor_tasa_cambio,
+          cotizacion: data.cotizacion,
         },
         conn
       );
