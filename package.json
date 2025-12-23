@@ -4,12 +4,10 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts --mode dev",
     "dev:dev": "tsx watch src/index.ts --mode dev",
-    "dev:prod": "tsx watch src/index.ts --mode prod"
+    "dev:prod": "tsx watch src/index.ts --mode prod",
+    "dev": "tsx watch src/index.ts --mode dev",
+    "start": "tsx src/index.ts --mode prod"
   },
   "keywords": [],
   "author": "",
