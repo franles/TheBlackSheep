@@ -60,7 +60,11 @@ if (config.NODE_ENV === "development") {
 // ✅ CORS configurado
 app.use(
   cors({
-    origin: config.CLIENT_URL,
+    origin: [
+      config.CLIENT_URL,
+      "https://www.theblacksheeptravel.com",
+      "https://theblacksheeptravel.com",
+    ],
     credentials: true,
   })
 );
