@@ -30,10 +30,9 @@ export class ServiceRepository implements IServiceRepository {
     rateChange: number | null,
     conn?: PoolConnection
   ): Promise<void> {
-    await QueryExecutor.executeStoredProcedure(
-      "insertar_servicio_viaje",
+    await QueryExecutor.executeInsert(
+      "INSERT INTO servicio (viaje_id, servicio_tipo_id, valor, pagado_por, moneda_id, cotizacion) VALUES (?, ?, ?, ?, ?, ?)",
       [tripId, serviceId, amount, payFor, currency, rateChange],
-      {},
       conn
     );
   }
@@ -47,10 +46,9 @@ export class ServiceRepository implements IServiceRepository {
     rateChange: number | null,
     conn?: PoolConnection
   ): Promise<void> {
-    await QueryExecutor.executeStoredProcedure(
-      "actualizar_servicio_viaje",
-      [tripId, serviceId, amount, payFor, currency, rateChange],
-      {},
+    await QueryExecutor.executeUpdate(
+      "UPDATE servicio SET valor = IFNULL(?, valor), pagado_por = IFNULL(?, pagado_por),moneda_id = IFNULL(?, moneda_id), cotizacion = IFNULL(?, cotizacion) WHERE viaje_id = ? AND servicio_tipo_id = ?;",
+      [amount, payFor, currency, rateChange, tripId, serviceId],
       conn
     );
   }

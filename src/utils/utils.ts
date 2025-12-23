@@ -41,30 +41,16 @@ export function verifyRefreshToken(
   return jwt.verify(token, config.JWT_REFRESH_SECRET);
 }
 
-interface FinanceSummaryItem {
-  mes: string;
-  mes_num: number;
-  moneda: string;
-  ingreso: number;
-  egreso: number;
-  ganancia: number;
-}
-
-interface GroupedSummary {
-  mes: string;
-  mes_num: number;
-  resumen: Array<{
-    moneda: string;
-    ingreso: number;
-    egreso: number;
-    ganancia: number;
-  }>;
-}
+import {
+  FinanceSummaryItemDTO,
+  FinanceSummaryResponseDTO,
+  MonthSummaryDTO,
+} from "../dtos/finance.dto";
 
 export function summaryResponse(
-  summary: FinanceSummaryItem[]
-): GroupedSummary[] {
-  const grouped: GroupedSummary[] = [];
+  summary: FinanceSummaryItemDTO[]
+): FinanceSummaryResponseDTO {
+  const grouped: MonthSummaryDTO[] = [];
 
   summary.forEach((item) => {
     let monthGroup = grouped.find((g) => g.mes_num === item.mes_num);

@@ -38,6 +38,18 @@ export interface CurrencySummaryDTO {
 }
 
 /**
+ * DTO para item de resumen financiero (raw db row)
+ */
+export interface FinanceSummaryItemDTO {
+  mes: string;
+  mes_num: number;
+  moneda: string;
+  ingreso: number;
+  egreso: number;
+  ganancia: number;
+}
+
+/**
  * DTO para crear tipo de cambio
  */
 export interface CreateExchangeRateDTO {

@@ -2,7 +2,7 @@ import { PoolConnection } from "mysql2/promise";
 import { db } from "../db/db";
 import { QueryExecutor } from "../core/QueryExecutor";
 import { IFinanceRepository } from "../interfaces/finance.repository";
-import { FinanceSummaryResponseDTO } from "../dtos/finance.dto";
+import { FinanceSummaryItemDTO } from "../dtos/finance.dto";
 
 export class FinanceRepository implements IFinanceRepository {
   async getConnection(): Promise<PoolConnection> {
@@ -14,7 +14,7 @@ export class FinanceRepository implements IFinanceRepository {
     year: number,
     currency: number | null,
     conn?: PoolConnection
-  ): Promise<FinanceSummaryResponseDTO> {
+  ): Promise<FinanceSummaryItemDTO[]> {
     const results = await QueryExecutor.executeStoredProcedure<any>(
       "resumen_financiero",
       [month, year, currency],
@@ -22,6 +22,6 @@ export class FinanceRepository implements IFinanceRepository {
       conn
     );
 
-    return results as FinanceSummaryResponseDTO;
+    return results as FinanceSummaryItemDTO[];
   }
 }
