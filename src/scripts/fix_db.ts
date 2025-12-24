@@ -68,7 +68,7 @@ async function fixDatabase() {
             v.ganancia,
             v.costo,
             v.destino,
-            v.valor_tasa_cambio,
+            v.cotizacion,
             COALESCE(
               (
                 SELECT JSON_ARRAYAGG(
@@ -78,7 +78,7 @@ async function fixDatabase() {
                     "pagado_por", s.pagado_por,
                     "valor", s.valor,
                     "moneda", m_s.moneda,
-                    "valor_tasa_cambio", s.valor_tasa_cambio
+                    "cotizacion", s.cotizacion
                   )
                 )
                 FROM servicio s
@@ -91,7 +91,7 @@ async function fixDatabase() {
           LEFT JOIN moneda m ON m.id = v.moneda_id
           WHERE 1=1 ',
           filtros,
-          ' GROUP BY v.id, v.fecha, v.estado, v.apellido, v.valor_total, m.moneda, v.ganancia, v.costo, v.destino, v.fecha_ida, v.fecha_vuelta, v.valor_tasa_cambio',
+          ' GROUP BY v.id, v.fecha, v.estado, v.apellido, v.valor_total, m.moneda, v.ganancia, v.costo, v.destino, v.fecha_ida, v.fecha_vuelta, v.cotizacion',
           ' ORDER BY v.fecha ', orden, ', v.id ', orden,
           ' LIMIT ', p_limit,
           ' OFFSET ', p_offset

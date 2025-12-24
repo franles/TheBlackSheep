@@ -25,10 +25,10 @@ async function diagnose() {
         const columnNames = columns.map((c: any) => c.Field);
         console.log('Columnas encontradas:', columnNames.join(', '));
 
-        if (!columnNames.includes('valor_tasa_cambio')) {
-            console.error('❌ FATAL: La columna "valor_tasa_cambio" NO existe en la tabla "viaje".');
+        if (!columnNames.includes('cotizacion')) {
+            console.error('❌ FATAL: La columna "cotizacion" NO existe en la tabla "viaje".');
         } else {
-            console.log('✅ La columna "valor_tasa_cambio" existe.');
+            console.log('✅ La columna "cotizacion" existe.');
         }
 
         // 2. Probar SP obtener_viajes

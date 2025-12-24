@@ -194,7 +194,7 @@ router.post("/", DIContainer.getServicesController().createServiceForTrip);
  *             valor: 550.00
  *             pagado_por: empresa
  *             moneda: 1
- *             valor_tasa_cambio: 3500.00
+ *             cotizacion: 3500.00
  *     responses:
  *       200:
  *         description: Servicio actualizado exitosamente

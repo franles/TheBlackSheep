@@ -16,7 +16,7 @@ import { ResponseBuilder } from "../core/ResponseBuilder";
 import { TripService } from "../services/trips.service";
 
 export class TripsController {
-  constructor(private tripService: TripService) {}
+  constructor(private tripService: TripService) { }
   getTrips = async (
     req: Request,
     res: Response,
@@ -97,7 +97,7 @@ export class TripsController {
         fecha_ida,
         fecha_vuelta,
         moneda,
-        cotizacion,
+        cotizacion, // Frontend envía cotizacion
       } = req.body;
 
       // Validar y parsear fechas

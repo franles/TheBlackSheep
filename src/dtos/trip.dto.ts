@@ -51,7 +51,7 @@ export interface TripResponseDTO {
   ganancia: number;
   costo: number;
   servicios: ServiceInTripDTO[];
-  valor_tasa_cambio: number;
+  cotizacion: number;
 }
 
 export interface ServiceInTripDTO {
