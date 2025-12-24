@@ -58,6 +58,7 @@ export class QueryExecutor {
         stack: error instanceof Error ? error.stack : undefined,
         duration: `${duration}ms`,
       });
+      console.error("CRITICAL DB ERROR:", error); // Added for immediate visibility
 
       throw ErrorFactory.internal(errorMessage);
     } finally {
