@@ -94,7 +94,7 @@ export class TripRepository implements ITripRepository {
         data.fecha_ida,
         data.fecha_vuelta,
         data.moneda,
-        data.cotizacion ?? null,
+        data.valor_tasa_cambio ?? null,
       ],
       { expectSingleRow: true },
       conn

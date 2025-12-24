@@ -1,5 +1,5 @@
 import { PoolConnection } from "mysql2/promise";
-import { FinanceSummaryItemDTO } from "../dtos/finance.dto";
+import { FinanceSummaryResponseDTO } from "../dtos/finance.dto";
 import { IBaseRepository } from "./repository.interface";
 
 export interface IFinanceRepository extends IBaseRepository {
@@ -8,5 +8,5 @@ export interface IFinanceRepository extends IBaseRepository {
     year: number,
     currency: number | null,
     conn?: PoolConnection
-  ): Promise<FinanceSummaryItemDTO[]>;
+  ): Promise<FinanceSummaryResponseDTO>;
 }
