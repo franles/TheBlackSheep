@@ -29,8 +29,14 @@ export class ServicesController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { valor, pagado_por, viaje_id, servicio_id, moneda, cotizacion } =
-        req.body;
+      const {
+        valor,
+        pagado_por,
+        viaje_id,
+        servicio_id,
+        moneda,
+        valor_tasa_cambio,
+      } = req.body;
 
       const serviceData: CreateServiceForTripDTO = {
         viaje_id,
@@ -38,7 +44,7 @@ export class ServicesController {
         valor,
         pagado_por,
         moneda,
-        cotizacion,
+        valor_tasa_cambio,
       };
 
       await this.servicesService.createServiceForTrip(serviceData);
@@ -57,14 +63,14 @@ export class ServicesController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { pagado_por, valor, moneda, cotizacion } = req.body;
+      const { pagado_por, valor, moneda, valor_tasa_cambio } = req.body;
       const { sid: serviceId, tid: tripId } = req.params;
 
       const serviceData: UpdateServiceForTripDTO = {
         valor,
         pagado_por,
         moneda,
-        cotizacion,
+        valor_tasa_cambio,
       };
 
       await this.servicesService.updateServiceForTrip(

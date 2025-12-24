@@ -30,41 +30,28 @@ export class TripRepository implements ITripRepository {
       conn
     );
 
-    // console.log("Raw results from DB:", JSON.stringify(results, null, 2));
+    // Default data extraction
+    const data: TripResponseDTO[] = Array.isArray(results[0]) ? results[0] : [];
 
-    try {
-      // Default data extraction
-      // The first element should be the data array
-      const data: TripResponseDTO[] =
-        Array.isArray(results) && Array.isArray(results[0]) ? results[0] : [];
+    // Total count extraction
+    let total = 0;
+    if (Array.isArray(results)) {
+      // Look for the array that contains the total count
+      const totalResult = results.find((r) =>
+        Array.isArray(r) &&
+        r.length > 0 && // sometimes count row is 1, but let's be flexible
+        r[0] &&
+        typeof r[0] === 'object' &&
+        'total' in r[0] &&
+        r !== data // Ensure we don't pick the data array if it accidentally has a 'total' field (unlikely)
+      );
 
-      // Total count extraction
-      let total = 0;
-      if (Array.isArray(results)) {
-        // Look for the array that contains the total count
-        // Usually it's the second result get (index 1) or inside one of the arrays
-        const totalResult = results.find(
-          (r) =>
-            Array.isArray(r) &&
-            r.length > 0 &&
-            r[0] &&
-            typeof r[0] === "object" &&
-            "total" in r[0] &&
-            r !== data
-        );
-
-        if (totalResult) {
-          total = totalResult[0].total;
-        }
+      if (totalResult) {
+        total = totalResult[0].total;
       }
-
-      return { data, total };
-    } catch (error) {
-      console.error("Error parsing getTrips results:", error);
-      console.error("Results structure:", JSON.stringify(results, null, 2));
-      // Return empty valid structure instead of failing
-      return { data: [], total: 0 };
     }
+
+    return { data, total };
   }
 
   async findById(
@@ -118,7 +105,7 @@ export class TripRepository implements ITripRepository {
         data.fecha_ida ?? null,
         data.fecha_vuelta ?? null,
         data.moneda ?? null,
-        data.cotizacion ?? null,
+        data.valor_tasa_cambio ?? null,
       ],
       { expectSingleRow: true },
       conn

@@ -60,9 +60,10 @@ export class ServiceRepository implements IServiceRepository {
     serviceId: number,
     conn?: PoolConnection
   ): Promise<void> {
-    await QueryExecutor.executeDelete(
-      "DELETE FROM servicio WHERE servicio_tipo_id = ? AND viaje_id = ?",
-      [serviceId, tripId],
+    await QueryExecutor.executeStoredProcedure(
+      "eliminar_servicio_viaje",
+      [tripId, serviceId],
+      {},
       conn
     );
   }
