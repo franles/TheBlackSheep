@@ -13,7 +13,8 @@ export interface IServiceRepository extends IBaseRepository {
     payFor: PagadoPorType,
     currency: number,
     rateChange: number | null,
-    conn?: PoolConnection
+    observation: string | null,
+    conn?: PoolConnection,
   ): Promise<void>;
 
   updateForTrip(
@@ -23,12 +24,13 @@ export interface IServiceRepository extends IBaseRepository {
     payFor: PagadoPorType,
     currency: number,
     rateChange: number | null,
-    conn?: PoolConnection
+    observation: string | null,
+    conn?: PoolConnection,
   ): Promise<void>;
 
   deleteForTrip(
     tripId: string,
     serviceId: number,
-    conn?: PoolConnection
+    conn?: PoolConnection,
   ): Promise<void>;
 }

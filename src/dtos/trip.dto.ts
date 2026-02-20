@@ -2,6 +2,7 @@ import { PagadoPorType, DestinoType } from "../constants/validation";
 
 export interface CreateTripDTO {
   apellido: string;
+  fecha: Date;
   valor_total: number;
   destino: DestinoType;
   fecha_ida: Date;
@@ -14,6 +15,7 @@ export interface CreateTripDTO {
 export interface UpdateTripDTO {
   apellido?: string;
   valor_total?: number;
+  fecha?: Date;
   destino?: DestinoType;
   fecha_ida?: Date;
   fecha_vuelta?: Date;
@@ -27,7 +29,7 @@ export interface CreateServiceDTO {
   valor: number;
   pagado_por: PagadoPorType;
   moneda: number;
-
+  observacion?: string | null;
   cotizacion?: number | null;
 }
 
@@ -42,6 +44,7 @@ export interface UpdateServiceInTripDTO {
 export interface TripResponseDTO {
   id: string;
   estado: "pendiente" | "finalizado";
+  fecha: Date;
   fecha_ida: Date;
   fecha_vuelta: Date;
   moneda: string;

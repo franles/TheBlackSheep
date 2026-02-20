@@ -16,11 +16,11 @@ import { ResponseBuilder } from "../core/ResponseBuilder";
 import { TripService } from "../services/trips.service";
 
 export class TripsController {
-  constructor(private tripService: TripService) { }
+  constructor(private tripService: TripService) {}
   getTrips = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const filter = parseStringOrNumber(req.query.filter);
@@ -28,14 +28,14 @@ export class TripsController {
       const limit = Math.min(
         Math.max(
           parseInt(req.query.limit as string) || PAGINATION.DEFAULT_LIMIT,
-          PAGINATION.MIN_LIMIT
+          PAGINATION.MIN_LIMIT,
         ),
-        PAGINATION.MAX_LIMIT
+        PAGINATION.MAX_LIMIT,
       );
 
       const page = Math.max(
         parseInt(req.query.page as string) || PAGINATION.DEFAULT_PAGE,
-        PAGINATION.MIN_PAGE
+        PAGINATION.MIN_PAGE,
       );
 
       const month = parseOptionalInt(req.query.month as string, 1, 12);
@@ -66,7 +66,7 @@ export class TripsController {
   getTrip = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const { tid: tripId } = req.params;
@@ -76,7 +76,7 @@ export class TripsController {
         ResponseBuilder.success({
           data: trip,
           message: "Viaje obtenido exitosamente",
-        })
+        }),
       );
     } catch (error) {
       next(error);
@@ -86,24 +86,28 @@ export class TripsController {
   createTrip = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const {
         apellido,
         valor_total,
         destino,
+        fecha,
         servicios,
         fecha_ida,
         fecha_vuelta,
         moneda,
-        cotizacion, // Frontend envía cotizacion
+        cotizacion,
       } = req.body;
 
       // Validar y parsear fechas
       const parsedFechaIda = new Date(fecha_ida);
       const parsedFechaVuelta = new Date(fecha_vuelta);
-
+      const parsedFecha = new Date(fecha);
+      if (!validateDate(parsedFecha)) {
+        throw ErrorFactory.badRequest("Fecha inválida");
+      }
       if (!validateDate(parsedFechaIda)) {
         throw ErrorFactory.badRequest("Fecha de ida inválida");
       }
@@ -114,11 +118,11 @@ export class TripsController {
 
       const dateValidation = validateDateRange(
         parsedFechaIda,
-        parsedFechaVuelta
+        parsedFechaVuelta,
       );
       if (!dateValidation.valid) {
         throw ErrorFactory.badRequest(
-          dateValidation.error || "Error en las fechas"
+          dateValidation.error || "Error en las fechas",
         );
       }
 
@@ -130,6 +134,7 @@ export class TripsController {
         fecha_vuelta: parsedFechaVuelta,
         moneda,
         cotizacion,
+        fecha: parsedFecha,
         servicios,
       };
 
@@ -146,7 +151,7 @@ export class TripsController {
   updateTrip = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const { tid: tripId } = req.params;
@@ -183,11 +188,11 @@ export class TripsController {
       if (parsedFechaIda && parsedFechaVuelta) {
         const dateValidation = validateDateRange(
           parsedFechaIda,
-          parsedFechaVuelta
+          parsedFechaVuelta,
         );
         if (!dateValidation.valid) {
           throw ErrorFactory.badRequest(
-            dateValidation.error || "Error en las fechas"
+            dateValidation.error || "Error en las fechas",
           );
         }
       }
@@ -208,7 +213,7 @@ export class TripsController {
       res
         .status(200)
         .json(
-          ResponseBuilder.updated(result, "Viaje actualizado exitosamente")
+          ResponseBuilder.updated(result, "Viaje actualizado exitosamente"),
         );
     } catch (error) {
       next(error);
@@ -218,7 +223,7 @@ export class TripsController {
   deleteTrip = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const { tid: tripId } = req.params;

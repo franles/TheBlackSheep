@@ -12,7 +12,7 @@ export class ServicesController {
   getServices = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const services = await this.servicesService.getServices();
@@ -26,11 +26,18 @@ export class ServicesController {
   createServiceForTrip = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
-      const { valor, pagado_por, viaje_id, servicio_id, moneda, cotizacion } =
-        req.body;
+      const {
+        valor,
+        pagado_por,
+        viaje_id,
+        servicio_id,
+        moneda,
+        cotizacion,
+        observacion,
+      } = req.body;
 
       const serviceData: CreateServiceForTripDTO = {
         viaje_id,
@@ -39,6 +46,7 @@ export class ServicesController {
         pagado_por,
         moneda,
         cotizacion,
+        observacion,
       };
 
       await this.servicesService.createServiceForTrip(serviceData);
@@ -54,10 +62,10 @@ export class ServicesController {
   updateServiceForTrip = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
-      const { pagado_por, valor, moneda, cotizacion } = req.body;
+      const { pagado_por, valor, moneda, cotizacion, observacion } = req.body;
       const { sid: serviceId, tid: tripId } = req.params;
 
       const serviceData: UpdateServiceForTripDTO = {
@@ -65,12 +73,13 @@ export class ServicesController {
         pagado_por,
         moneda,
         cotizacion,
+        observacion,
       };
 
       await this.servicesService.updateServiceForTrip(
         tripId,
         Number(serviceId),
-        serviceData
+        serviceData,
       );
 
       res
@@ -84,14 +93,14 @@ export class ServicesController {
   deleteServiceForTrip = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const { sid: serviceId, tid: tripId } = req.params;
 
       await this.servicesService.deleteServiceForTrip(
         tripId,
-        Number(serviceId)
+        Number(serviceId),
       );
 
       res

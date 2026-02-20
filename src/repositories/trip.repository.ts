@@ -20,14 +20,14 @@ export class TripRepository implements ITripRepository {
     offset: number,
     month: number | null,
     year: number | null,
-    conn?: PoolConnection
+    conn?: PoolConnection,
   ): Promise<StoredProcedureResultWithTotal<TripResponseDTO>> {
     // Execute SP
     const results = await QueryExecutor.executeStoredProcedure<any>(
       "obtener_viajes",
       [filter, limit, offset, month, year],
       { expectResultSets: true },
-      conn
+      conn,
     );
 
     // console.log("Raw results from DB:", JSON.stringify(results, null, 2));
@@ -50,7 +50,7 @@ export class TripRepository implements ITripRepository {
             r[0] &&
             typeof r[0] === "object" &&
             "total" in r[0] &&
-            r !== data
+            r !== data,
         );
 
         if (totalResult) {
@@ -69,13 +69,13 @@ export class TripRepository implements ITripRepository {
 
   async findById(
     id: string,
-    conn?: PoolConnection
+    conn?: PoolConnection,
   ): Promise<TripResponseDTO | null> {
     const result = await QueryExecutor.executeStoredProcedure<any>(
       "obtener_viaje",
       [id],
       { expectSingleRow: true, allowEmpty: true },
-      conn
+      conn,
     );
 
     return result || null;
@@ -83,11 +83,12 @@ export class TripRepository implements ITripRepository {
 
   async create(
     data: Omit<CreateTripDTO, "servicios">,
-    conn?: PoolConnection
+    conn?: PoolConnection,
   ): Promise<string> {
     const result = await QueryExecutor.executeStoredProcedure<any>(
       "insertar_viaje",
       [
+        data.fecha,
         data.apellido,
         data.valor_total,
         data.destino,
@@ -97,7 +98,7 @@ export class TripRepository implements ITripRepository {
         data.cotizacion ?? null,
       ],
       { expectSingleRow: true },
-      conn
+      conn,
     );
 
     return result.id;
@@ -106,7 +107,7 @@ export class TripRepository implements ITripRepository {
   async update(
     id: string,
     data: Omit<UpdateTripDTO, "servicios">,
-    conn?: PoolConnection
+    conn?: PoolConnection,
   ): Promise<string> {
     const result = await QueryExecutor.executeStoredProcedure<any>(
       "actualizar_viaje",
@@ -121,7 +122,7 @@ export class TripRepository implements ITripRepository {
         data.cotizacion ?? null,
       ],
       { expectSingleRow: true },
-      conn
+      conn,
     );
 
     return result.id;
@@ -132,7 +133,7 @@ export class TripRepository implements ITripRepository {
       "eliminar_viaje",
       [id],
       { expectSingleRow: true },
-      conn
+      conn,
     );
 
     return result.id;

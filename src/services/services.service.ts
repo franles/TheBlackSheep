@@ -8,7 +8,7 @@ import { TransactionManager } from "../core/TransactionManager";
 import logger from "../config/logger.config";
 
 export class ServicesService {
-  constructor(private serviceRepository: IServiceRepository) { }
+  constructor(private serviceRepository: IServiceRepository) {}
 
   async getServices(): Promise<ServiceResponseDTO[]> {
     logger.info("Fetching all services");
@@ -29,7 +29,8 @@ export class ServicesService {
         data.pagado_por,
         data.moneda,
         data.cotizacion || null,
-        conn
+        data.observacion || null,
+        conn,
       );
     });
 
@@ -42,7 +43,7 @@ export class ServicesService {
   async updateServiceForTrip(
     tripId: string,
     serviceId: number,
-    data: UpdateServiceForTripDTO
+    data: UpdateServiceForTripDTO,
   ): Promise<void> {
     logger.info("Updating service for trip", { tripId, serviceId });
 
@@ -54,7 +55,8 @@ export class ServicesService {
         data.pagado_por!,
         data.moneda!,
         data.cotizacion || null,
-        conn
+        data.observacion || null,
+        conn,
       );
     });
 

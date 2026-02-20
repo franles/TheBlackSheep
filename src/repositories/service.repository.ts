@@ -17,7 +17,7 @@ export class ServiceRepository implements IServiceRepository {
     return await QueryExecutor.executeSelect<ServiceResponseDTO>(
       "SELECT * FROM servicio_tipo",
       [],
-      conn
+      conn,
     );
   }
 
@@ -28,12 +28,13 @@ export class ServiceRepository implements IServiceRepository {
     payFor: PagadoPorType,
     currency: number,
     rateChange: number | null,
-    conn?: PoolConnection
+    observation: string | null,
+    conn?: PoolConnection,
   ): Promise<void> {
     await QueryExecutor.executeInsert(
-      "INSERT INTO servicio (viaje_id, servicio_tipo_id, valor, pagado_por, moneda_id, cotizacion) VALUES (?, ?, ?, ?, ?, ?)",
-      [tripId, serviceId, amount, payFor, currency, rateChange],
-      conn
+      "INSERT INTO servicio (viaje_id, servicio_tipo_id, valor, pagado_por, moneda_id, cotizacion, observacion) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [tripId, serviceId, amount, payFor, currency, rateChange, observation],
+      conn,
     );
   }
 
@@ -44,24 +45,26 @@ export class ServiceRepository implements IServiceRepository {
     payFor: PagadoPorType,
     currency: number,
     rateChange: number | null,
-    conn?: PoolConnection
+    observation: string | null,
+
+    conn?: PoolConnection,
   ): Promise<void> {
     await QueryExecutor.executeUpdate(
-      "UPDATE servicio SET valor = IFNULL(?, valor), pagado_por = IFNULL(?, pagado_por),moneda_id = IFNULL(?, moneda_id), cotizacion = IFNULL(?, cotizacion) WHERE viaje_id = ? AND servicio_tipo_id = ?;",
-      [amount, payFor, currency, rateChange, tripId, serviceId],
-      conn
+      "UPDATE servicio SET valor = IFNULL(?, valor), pagado_por = IFNULL(?, pagado_por),moneda_id = IFNULL(?, moneda_id), cotizacion = IFNULL(?, cotizacion), observacion = IFNULL(?, observacion) WHERE viaje_id = ? AND servicio_tipo_id = ?;",
+      [amount, payFor, currency, rateChange, observation, tripId, serviceId],
+      conn,
     );
   }
 
   async deleteForTrip(
     tripId: string,
     serviceId: number,
-    conn?: PoolConnection
+    conn?: PoolConnection,
   ): Promise<void> {
     await QueryExecutor.executeDelete(
       "DELETE FROM servicio WHERE servicio_tipo_id = ? AND viaje_id = ?",
       [serviceId, tripId],
-      conn
+      conn,
     );
   }
 }

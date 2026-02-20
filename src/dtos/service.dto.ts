@@ -10,6 +10,7 @@ export interface CreateServiceForTripDTO {
   pagado_por: PagadoPorType;
   moneda: number;
   cotizacion?: number;
+  observacion?: string;
 }
 
 /**
@@ -20,6 +21,7 @@ export interface UpdateServiceForTripDTO {
   pagado_por?: PagadoPorType;
   moneda?: number;
   cotizacion?: number;
+  observacion?: string;
 }
 
 /**
