@@ -21,7 +21,7 @@ export class TripService {
   constructor(
     private tripRepository: ITripRepository,
     private serviceRepository: IServiceRepository,
-  ) {}
+  ) { }
 
   async getTrips(query: GetTripsQueryDTO): Promise<PaginatedTripsResponseDTO> {
     let filter = query.filter ?? null;
@@ -153,6 +153,7 @@ export class TripService {
           apellido: data.apellido,
           valor_total: data.valor_total,
           destino: data.destino,
+          fecha: data.fecha,
           fecha_ida: data.fecha_ida,
           fecha_vuelta: data.fecha_vuelta,
           moneda: data.moneda,

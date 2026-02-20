@@ -16,7 +16,7 @@ import { ResponseBuilder } from "../core/ResponseBuilder";
 import { TripService } from "../services/trips.service";
 
 export class TripsController {
-  constructor(private tripService: TripService) {}
+  constructor(private tripService: TripService) { }
   getTrips = async (
     req: Request,
     res: Response,
@@ -162,13 +162,21 @@ export class TripsController {
         servicios,
         moneda,
         cotizacion,
+        fecha,
         fecha_ida,
         fecha_vuelta,
       } = req.body;
 
-      // Validar y parsear fechas si están presentes
+      let parsedFecha: Date | undefined;
       let parsedFechaIda: Date | undefined;
       let parsedFechaVuelta: Date | undefined;
+
+      if (fecha) {
+        parsedFecha = new Date(fecha);
+        if (!validateDate(parsedFecha)) {
+          throw ErrorFactory.badRequest("Fecha inválida");
+        }
+      }
 
       if (fecha_ida) {
         parsedFechaIda = new Date(fecha_ida);
@@ -201,6 +209,7 @@ export class TripsController {
         apellido,
         valor_total,
         destino,
+        fecha: parsedFecha,
         fecha_ida: parsedFechaIda,
         fecha_vuelta: parsedFechaVuelta,
         moneda,
