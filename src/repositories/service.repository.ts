@@ -46,7 +46,6 @@ export class ServiceRepository implements IServiceRepository {
     currency: number,
     rateChange: number | null,
     observation: string | null,
-
     conn?: PoolConnection,
   ): Promise<void> {
     await QueryExecutor.executeUpdate(

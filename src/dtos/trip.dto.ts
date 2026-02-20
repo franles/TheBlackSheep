@@ -39,6 +39,7 @@ export interface UpdateServiceInTripDTO {
   pagado_por: PagadoPorType;
   moneda: number;
   cotizacion: number | null;
+  observacion: string | null;
 }
 
 export interface TripResponseDTO {

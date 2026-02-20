@@ -1,20 +1,21 @@
 import { db } from "../db/db";
 
 async function fixViajesSP() {
-    const connection = await db.getConnection();
+  const connection = await db.getConnection();
 
-    try {
-        console.log("Corrigiendo SP insertar_viaje...");
+  try {
+    console.log("Corrigiendo SP insertar_viaje...");
 
-        // Drop existing
-        await connection.query("DROP PROCEDURE IF EXISTS insertar_viaje");
+    // Drop existing
+    await connection.query("DROP PROCEDURE IF EXISTS insertar_viaje");
 
-        // Create new with 'cotizacion'
-        const createInsertQuery = `
+    // Create new with 'fecha' and 'cotizacion'
+    const createInsertQuery = `
       CREATE PROCEDURE insertar_viaje(
         IN p_apellido VARCHAR(50),
         IN p_valor_total DECIMAL(12,2),
         IN p_destino ENUM('nacional', 'internacional'),
+        IN p_fecha DATE,
         IN p_fecha_ida DATE,
         IN p_fecha_vuelta DATE,
         IN p_moneda_id INT,
@@ -25,7 +26,7 @@ async function fixViajesSP() {
 
         INSERT INTO viaje (fecha, apellido, valor_total, destino, fecha_vuelta, fecha_ida, moneda_id, cotizacion)
         VALUES (
-          DATE_SUB(NOW(), INTERVAL 3 HOUR),
+          p_fecha,
           p_apellido,
           p_valor_total,
           p_destino,
@@ -40,14 +41,14 @@ async function fixViajesSP() {
       END;
     `;
 
-        await connection.query(createInsertQuery);
-        console.log("SP insertar_viaje corregido exitosamente.");
+    await connection.query(createInsertQuery);
+    console.log("SP insertar_viaje corregido exitosamente.");
 
-        // Check actualizar_viaje as well just in case, ensuring consistency
-        console.log("Asegurando SP actualizar_viaje...");
-        await connection.query("DROP PROCEDURE IF EXISTS actualizar_viaje");
+    // Check actualizar_viaje as well just in case, ensuring consistency
+    console.log("Asegurando SP actualizar_viaje...");
+    await connection.query("DROP PROCEDURE IF EXISTS actualizar_viaje");
 
-        const createUpdateQuery = `
+    const createUpdateQuery = `
       CREATE PROCEDURE actualizar_viaje(
         IN p_id VARCHAR(6), 
         IN p_apellido VARCHAR(50), 
@@ -73,15 +74,14 @@ async function fixViajesSP() {
           SELECT p_id AS id;
       END;
     `;
-        await connection.query(createUpdateQuery);
-        console.log("SP actualizar_viaje asegurado exitosamente.");
-
-    } catch (error) {
-        console.error("Error al corregir SPs:", error);
-    } finally {
-        connection.release();
-        process.exit();
-    }
+    await connection.query(createUpdateQuery);
+    console.log("SP actualizar_viaje asegurado exitosamente.");
+  } catch (error) {
+    console.error("Error al corregir SPs:", error);
+  } finally {
+    connection.release();
+    process.exit();
+  }
 }
 
 fixViajesSP();

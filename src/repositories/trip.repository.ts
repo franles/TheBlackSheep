@@ -81,6 +81,10 @@ export class TripRepository implements ITripRepository {
     return result || null;
   }
 
+  private toDateString(date: Date): string {
+    return date.toISOString().split("T")[0];
+  }
+
   async create(
     data: Omit<CreateTripDTO, "servicios">,
     conn?: PoolConnection,
@@ -88,12 +92,12 @@ export class TripRepository implements ITripRepository {
     const result = await QueryExecutor.executeStoredProcedure<any>(
       "insertar_viaje",
       [
-        data.fecha,
         data.apellido,
         data.valor_total,
         data.destino,
-        data.fecha_ida,
-        data.fecha_vuelta,
+        this.toDateString(data.fecha),
+        this.toDateString(data.fecha_ida),
+        this.toDateString(data.fecha_vuelta),
         data.moneda,
         data.cotizacion ?? null,
       ],
@@ -116,8 +120,9 @@ export class TripRepository implements ITripRepository {
         data.apellido ?? null,
         data.valor_total ?? null,
         data.destino ?? null,
-        data.fecha_ida ?? null,
-        data.fecha_vuelta ?? null,
+        data.fecha ? this.toDateString(data.fecha) : null,
+        data.fecha_ida ? this.toDateString(data.fecha_ida) : null,
+        data.fecha_vuelta ? this.toDateString(data.fecha_vuelta) : null,
         data.moneda ?? null,
         data.cotizacion ?? null,
       ],

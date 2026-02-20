@@ -20,8 +20,8 @@ import logger from "../config/logger.config";
 export class TripService {
   constructor(
     private tripRepository: ITripRepository,
-    private serviceRepository: IServiceRepository
-  ) { }
+    private serviceRepository: IServiceRepository,
+  ) {}
 
   async getTrips(query: GetTripsQueryDTO): Promise<PaginatedTripsResponseDTO> {
     let filter = query.filter ?? null;
@@ -63,7 +63,7 @@ export class TripService {
       limit,
       offset,
       month,
-      year
+      year,
     );
 
     const pagination = ResponseBuilder.buildPagination(page, limit, total);
@@ -100,13 +100,24 @@ export class TripService {
           apellido: data.apellido,
           valor_total: data.valor_total,
           destino: data.destino,
+          fecha: data.fecha,
           fecha_ida: data.fecha_ida,
           fecha_vuelta: data.fecha_vuelta,
           moneda: data.moneda,
           cotizacion: data.cotizacion,
         },
-        conn
+        conn,
       );
+
+      const serviceIds = data.servicios.map((s) => s.id);
+      const duplicateIds = serviceIds.filter(
+        (id, index) => serviceIds.indexOf(id) !== index,
+      );
+      if (duplicateIds.length > 0) {
+        throw ErrorFactory.badRequest(
+          `Servicios duplicados: ${[...new Set(duplicateIds)].join(", ")}`,
+        );
+      }
 
       for (const service of data.servicios) {
         await this.serviceRepository.createForTrip(
@@ -116,7 +127,8 @@ export class TripService {
           service.pagado_por,
           service.moneda,
           service.cotizacion ?? null,
-          conn
+          service.observacion ?? null,
+          conn,
         );
       }
 
@@ -146,7 +158,7 @@ export class TripService {
           moneda: data.moneda,
           cotizacion: data.cotizacion,
         },
-        conn
+        conn,
       );
 
       if (data.servicios && data.servicios.length > 0) {
@@ -158,7 +170,8 @@ export class TripService {
             service.pagado_por,
             service.moneda,
             service.cotizacion,
-            conn
+            service.observacion,
+            conn,
           );
         }
       }
