@@ -99,6 +99,7 @@ export class TripsController {
         fecha_vuelta,
         moneda,
         cotizacion,
+        valor_total_usd,
       } = req.body;
 
       // Validar y parsear fechas
@@ -134,6 +135,7 @@ export class TripsController {
         fecha_vuelta: parsedFechaVuelta,
         moneda,
         cotizacion,
+        valor_total_usd,
         fecha: parsedFecha,
         servicios,
       };
@@ -165,6 +167,7 @@ export class TripsController {
         fecha,
         fecha_ida,
         fecha_vuelta,
+        valor_total_usd,
       } = req.body;
 
       let parsedFecha: Date | undefined;
@@ -214,6 +217,7 @@ export class TripsController {
         fecha_vuelta: parsedFechaVuelta,
         moneda,
         cotizacion,
+        valor_total_usd,
         servicios,
       };
 

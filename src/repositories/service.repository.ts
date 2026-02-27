@@ -66,4 +66,61 @@ export class ServiceRepository implements IServiceRepository {
       conn,
     );
   }
+
+  /**
+   * Recalcula la cotización de todos los servicios de un viaje cuya moneda
+   * difiere de la moneda del viaje, usando la nueva cotización del viaje.
+   *
+   * Lógica:
+   * - Si el viaje pasa a ARS (monedaId=1): los servicios en USD reciben la nueva cotización.
+   *   Los servicios en ARS quedan con cotización NULL.
+   * - Si el viaje pasa a USD o Mixto (monedaId=2 ó 3): los servicios en USD mantienen
+   *   la nueva cotización del viaje. Los servicios en ARS reciben la nueva cotización
+   *   para poder convertirse a USD.
+   */
+  async recotizarServiciosViaje(
+    tripId: string,
+    nuevaCotizacion: number | null,
+    nuevaMonedaId: number,
+    conn?: PoolConnection,
+  ): Promise<void> {
+    if (nuevaMonedaId === 1) {
+      // Viaje ARS: servicios USD reciben la cotización (si hay), servicios ARS quedan sin cotización
+      if (nuevaCotizacion != null && nuevaCotizacion > 0) {
+        await QueryExecutor.executeUpdate(
+          `UPDATE servicio SET cotizacion = ? WHERE viaje_id = ? AND moneda_id = 2`,
+          [nuevaCotizacion, tripId],
+          conn,
+        );
+      }
+      await QueryExecutor.executeUpdate(
+        `UPDATE servicio SET cotizacion = NULL WHERE viaje_id = ? AND moneda_id = 1`,
+        [tripId],
+        conn,
+      );
+    } else if (nuevaMonedaId === 2) {
+      // Viaje USD: servicios ARS reciben la cotización para convertir, servicios USD sin cotización
+      if (nuevaCotizacion != null && nuevaCotizacion > 0) {
+        await QueryExecutor.executeUpdate(
+          `UPDATE servicio SET cotizacion = ? WHERE viaje_id = ? AND moneda_id = 1`,
+          [nuevaCotizacion, tripId],
+          conn,
+        );
+      }
+      await QueryExecutor.executeUpdate(
+        `UPDATE servicio SET cotizacion = NULL WHERE viaje_id = ? AND moneda_id = 2`,
+        [tripId],
+        conn,
+      );
+    } else if (nuevaMonedaId === 3) {
+      // Viaje Mixto: todos los servicios reciben la cotización del viaje
+      if (nuevaCotizacion != null && nuevaCotizacion > 0) {
+        await QueryExecutor.executeUpdate(
+          `UPDATE servicio SET cotizacion = ? WHERE viaje_id = ?`,
+          [nuevaCotizacion, tripId],
+          conn,
+        );
+      }
+    }
+  }
 }

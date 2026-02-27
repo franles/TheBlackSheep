@@ -105,6 +105,7 @@ export class TripService {
           fecha_vuelta: data.fecha_vuelta,
           moneda: data.moneda,
           cotizacion: data.cotizacion,
+          valor_total_usd: data.valor_total_usd,
         },
         conn,
       );
@@ -158,9 +159,26 @@ export class TripService {
           fecha_vuelta: data.fecha_vuelta,
           moneda: data.moneda,
           cotizacion: data.cotizacion,
+          valor_total_usd: data.valor_total_usd,
         },
         conn,
       );
+
+      // Si cambió la moneda o la cotización, recotizar automáticamente todos los
+      // servicios existentes del viaje para que los costos/ganancias sean consistentes.
+      if (data.moneda != null && (data.cotizacion != null || data.moneda === 1)) {
+        logger.info("Recotizando servicios del viaje por cambio de moneda/cotización", {
+          tripId: updatedId,
+          nuevaMoneda: data.moneda,
+          nuevaCotizacion: data.cotizacion,
+        });
+        await this.serviceRepository.recotizarServiciosViaje(
+          updatedId,
+          data.cotizacion ?? null,
+          data.moneda,
+          conn,
+        );
+      }
 
       if (data.servicios && data.servicios.length > 0) {
         for (const service of data.servicios) {

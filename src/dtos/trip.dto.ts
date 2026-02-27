@@ -9,6 +9,7 @@ export interface CreateTripDTO {
   fecha_vuelta: Date;
   moneda: number;
   cotizacion?: number | null;
+  valor_total_usd?: number;
   servicios: CreateServiceDTO[];
 }
 
@@ -21,6 +22,7 @@ export interface UpdateTripDTO {
   fecha_vuelta?: Date;
   moneda?: number;
   cotizacion?: number | null;
+  valor_total_usd?: number;
   servicios?: UpdateServiceInTripDTO[];
 }
 
@@ -52,8 +54,11 @@ export interface TripResponseDTO {
   destino: DestinoType;
   apellido: string;
   valor_total: number;
+  valor_total_usd: number;
   ganancia: number;
+  ganancia_usd: number;
   costo: number;
+  costo_usd: number;
   servicios: ServiceInTripDTO[];
   cotizacion: number;
 }

@@ -33,4 +33,11 @@ export interface IServiceRepository extends IBaseRepository {
     serviceId: number,
     conn?: PoolConnection,
   ): Promise<void>;
+
+  recotizarServiciosViaje(
+    tripId: string,
+    nuevaCotizacion: number | null,
+    nuevaMonedaId: number,
+    conn?: PoolConnection,
+  ): Promise<void>;
 }
