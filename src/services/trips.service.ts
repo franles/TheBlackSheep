@@ -148,6 +148,15 @@ export class TripService {
     logger.info("Updating trip", { tripId: id });
 
     const tripId = await TransactionManager.execute(async (conn) => {
+      // Obtener el viaje actual ANTES de actualizar para comparar cambios
+      const tripActual = await this.tripRepository.findById(id, conn);
+
+      const monedaActualId =
+        tripActual?.moneda?.toLowerCase() === "usd" ? 2
+          : tripActual?.moneda?.toLowerCase() === "mixto" ? 3
+            : 1;
+      const cotizacionActual = tripActual?.cotizacion ?? null;
+
       const updatedId = await this.tripRepository.update(
         id,
         {
@@ -164,9 +173,13 @@ export class TripService {
         conn,
       );
 
-      // Si cambió la moneda o la cotización, recotizar automáticamente todos los
-      // servicios existentes del viaje para que los costos/ganancias sean consistentes.
-      if (data.moneda != null && (data.cotizacion != null || data.moneda === 1)) {
+      // Solo recotizar si realmente cambió la moneda o la cotización
+      const monedaCambio = data.moneda != null && data.moneda !== monedaActualId;
+      const cotizacionCambio =
+        data.cotizacion !== undefined &&
+        Number(data.cotizacion ?? 0) !== Number(cotizacionActual ?? 0);
+
+      if (data.moneda != null && (monedaCambio || cotizacionCambio)) {
         logger.info("Recotizando servicios del viaje por cambio de moneda/cotización", {
           tripId: updatedId,
           nuevaMoneda: data.moneda,
