@@ -32,7 +32,7 @@ export class ServiceRepository implements IServiceRepository {
     conn?: PoolConnection,
   ): Promise<void> {
     await QueryExecutor.executeInsert(
-      "INSERT IGNORE INTO servicio (viaje_id, servicio_tipo_id, valor, pagado_por, moneda_id, cotizacion, observacion) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO servicio (viaje_id, servicio_tipo_id, valor, pagado_por, moneda_id, cotizacion, observacion) VALUES (?, ?, ?, ?, ?, ?, ?)",
       [tripId, serviceId, amount, payFor, currency, rateChange, observation],
       conn,
     );

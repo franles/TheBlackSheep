@@ -78,7 +78,18 @@ export class TripRepository implements ITripRepository {
       conn,
     );
 
-    return result || null;
+    if (!result) return null;
+
+    // JSON_ARRAYAGG en un SP puede llegar como string en lugar de objeto parseado
+    if (typeof result.servicios === "string") {
+      try {
+        result.servicios = JSON.parse(result.servicios);
+      } catch {
+        result.servicios = [];
+      }
+    }
+
+    return result;
   }
 
   private toDateString(date: Date): string {
@@ -89,7 +100,8 @@ export class TripRepository implements ITripRepository {
     data: Omit<CreateTripDTO, "servicios">,
     conn?: PoolConnection,
   ): Promise<string> {
-    const result = await QueryExecutor.executeStoredProcedure<any>(
+    // Ejecutar el SP que inserta el viaje
+    await QueryExecutor.executeStoredProcedure<any>(
       "insertar_viaje",
       [
         data.apellido,
@@ -102,11 +114,25 @@ export class TripRepository implements ITripRepository {
         data.moneda,
         data.cotizacion ?? null,
       ],
-      { expectSingleRow: true },
+      { expectResultSets: true },
       conn,
     );
 
-    return result.id;
+    // El SP usa ORDER BY fecha DESC LIMIT 1 para obtener el ID, lo cual es
+    // poco confiable si hay viajes con fechas futuras. En cambio, consultamos
+    // directamente la tabla viaje_seq que usa AUTO_INCREMENT para generar los IDs.
+    const seqResult = await QueryExecutor.executeSelect<{ seq: number }>(
+      "SELECT MAX(seq) AS seq FROM viaje_seq",
+      [],
+      conn,
+    );
+
+    const seq = seqResult[0]?.seq;
+    if (!seq) {
+      throw new Error("No se pudo obtener el ID del viaje recién creado");
+    }
+
+    return `TBS${String(seq).padStart(3, "0")}`;
   }
 
   async update(
